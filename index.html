@@ -737,16 +737,18 @@
 </script>
 
 <script>
-  // ===== 星空深渊背景（随鼠标视差变化） =====
+  // ===== 星空深渊背景（鼠标视差 + 圆弧流星） =====
   (function () {
     var canvas = document.getElementById('starfield');
     if (!canvas) return;
     var ctx = canvas.getContext('2d');
     var W = 0, H = 0, DPR = 1;
     var stars = [];
+    var meteors = [];
     var mouse = { x: 0.5, y: 0.5, tx: 0.5, ty: 0.5 };
     var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var raf = null, last = 0;
+    var raf = null, last = 0, lastRound = 0;
+    var ROUND_INTERVAL = 5000; // 每5秒触发一轮
 
     function spawn() {
       var count = Math.round(Math.min(320, (W * H) / 5200));
@@ -776,6 +778,101 @@
       ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
       spawn();
       if (reduced) paint(0, 1);
+    }
+
+    /* ===== 圆弧流星 ===== */
+    function spawnMeteorRound(now) {
+      var count = 5 + Math.floor(Math.random() * 6); // 每轮5-10颗
+      for (var i = 0; i < count; i++) {
+        var fromLeft = Math.random() < 0.5;
+        var startX = fromLeft
+          ? Math.random() * W * 0.45
+          : W * 0.55 + Math.random() * W * 0.45;
+        var startY = -20 + Math.random() * H * 0.22;
+        var endX = fromLeft
+          ? W * 0.45 + Math.random() * W * 0.55
+          : Math.random() * W * 0.55;
+        var endY = H * 0.45 + Math.random() * H * 0.5;
+
+        // 控制点：垂直于路径方向偏移，形成圆弧
+        var dx = endX - startX;
+        var dy = endY - startY;
+        var len = Math.sqrt(dx * dx + dy * dy) || 1;
+        var perpX = -dy / len;
+        var perpY = dx / len;
+        var curve = (0.12 + Math.random() * 0.3) * len;
+        var side = Math.random() < 0.5 ? 1 : -1;
+        var ctrlX = (startX + endX) / 2 + perpX * curve * side;
+        var ctrlY = (startY + endY) / 2 + perpY * curve * side;
+
+        meteors.push({
+          x0: startX, y0: startY,
+          cx: ctrlX, cy: ctrlY,
+          x1: endX, y1: endY,
+          startTime: now + Math.random() * 900, // 错峰0-0.9s
+          duration: 4600 + Math.random() * 900,  // 单颗约5s（4.6-5.5s）
+          size: 1.1 + Math.random() * 1.1,
+          blue: Math.random() < 0.35,
+          brightness: 0.55 + Math.random() * 0.45
+        });
+      }
+    }
+
+    function bezier(p, m) {
+      var u = 1 - p;
+      return {
+        x: u * u * m.x0 + 2 * u * p * m.cx + p * p * m.x1,
+        y: u * u * m.y0 + 2 * u * p * m.cy + p * p * m.y1
+      };
+    }
+
+    function drawMeteors(now) {
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter'; // 叠加发光
+      for (var i = meteors.length - 1; i >= 0; i--) {
+        var m = meteors[i];
+        if (now < m.startTime) continue;
+        var p = (now - m.startTime) / m.duration;
+        if (p >= 1) { meteors.splice(i, 1); continue; }
+
+        var head = bezier(p, m);
+        var trailP = Math.max(0, p - 380 / m.duration); // 尾迹约0.38s
+        var tail = bezier(trailP, m);
+
+        // 淡入淡出
+        var alpha = m.brightness;
+        if (p < 0.08) alpha *= p / 0.08;
+        if (p > 0.82) alpha *= (1 - p) / 0.18;
+        if (alpha <= 0.01) continue;
+
+        var headRGB = m.blue ? '140,175,255' : '255,255,255';
+
+        // 渐变尾迹
+        var grad = ctx.createLinearGradient(tail.x, tail.y, head.x, head.y);
+        grad.addColorStop(0, 'rgba(61,123,255,0)');
+        grad.addColorStop(0.55, 'rgba(' + headRGB + ',' + (alpha * 0.3).toFixed(3) + ')');
+        grad.addColorStop(1, 'rgba(' + headRGB + ',' + alpha.toFixed(3) + ')');
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = m.size;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(tail.x, tail.y);
+        ctx.lineTo(head.x, head.y);
+        ctx.stroke();
+
+        // 头部光晕
+        ctx.beginPath();
+        ctx.arc(head.x, head.y, m.size * 2.2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(' + headRGB + ',' + (alpha * 0.18).toFixed(3) + ')';
+        ctx.fill();
+
+        // 亮核
+        ctx.beginPath();
+        ctx.arc(head.x, head.y, m.size * 0.65, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,' + (alpha * 0.9).toFixed(3) + ')';
+        ctx.fill();
+      }
+      ctx.restore();
     }
 
     function paint(now, dt) {
@@ -819,12 +916,23 @@
           : 'rgba(242,246,252,' + tw.toFixed(3) + ')';
         ctx.fill();
       }
+
+      // 圆弧流星（叠加在星空之上）
+      drawMeteors(now);
     }
 
     function loop(now) {
       if (!last) last = now;
       var dt = Math.min((now - last) / 16.667, 3);
       last = now;
+
+      // 每5秒触发一轮流星（第一轮约2秒后出现）
+      if (!lastRound) lastRound = now - 3000;
+      if (now - lastRound >= ROUND_INTERVAL) {
+        lastRound = now;
+        spawnMeteorRound(now);
+      }
+
       paint(now, dt);
       raf = window.requestAnimationFrame(loop);
     }
@@ -839,6 +947,7 @@
         if (raf) { window.cancelAnimationFrame(raf); raf = null; }
       } else if (!reduced && !raf) {
         last = 0;
+        lastRound = 0; // 切回标签页后重新计时
         raf = window.requestAnimationFrame(loop);
       }
     }
