@@ -1059,6 +1059,41 @@
   .rand-result.final { color: var(--accent); }
   .rand-result.pan-url { font-size: 0.9rem; word-break: break-all; }
 
+  /* 网盘助手 */
+  .pan-plat {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--accent);
+    min-height: 1.2em;
+    margin: 4px 0 10px;
+  }
+  .pan-guide {
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .pan-guide summary {
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--text);
+    user-select: none;
+  }
+  .pan-guide summary:hover { color: var(--accent); }
+  .pan-guide ol { margin: 8px 0 4px; padding-left: 1.3em; }
+  .pan-guide li { font-size: 0.8rem; color: var(--muted); line-height: 1.75; }
+  .pan-guide code {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    background: rgba(59, 130, 246, 0.12);
+    color: #93c5fd;
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+  .pan-guide p { font-size: 0.78rem; color: var(--muted); margin: 6px 0 0; line-height: 1.6; }
+
   /* 绩点计算器 */
   .gpa-grid {
     display: grid;
@@ -1567,21 +1602,41 @@
       <div class="tool-panel" id="panel-pan">
         <div class="tool-head">
           <h3>网盘助手</h3>
-          <p>把百度网盘分享链接和提取码整理成一条完整链接，一键复制或打开。</p>
+          <p>粘贴网盘分享链接，自动识别平台并一键打开；配合油猴脚本（LinkSwift）与 IDM 实现满速直链下载。</p>
         </div>
         <div class="tool-row">
-          <input class="input grow" id="pan-link" type="text" placeholder="粘贴分享链接，如 pan.baidu.com/s/xxxx 或 s/xxxx" maxlength="200">
+          <input class="input grow" id="pan-link" type="text" placeholder="粘贴任意网盘分享链接：百度 / 夸克 / 123 / UC / 天翼 / 迅雷 / 阿里" maxlength="400">
         </div>
         <div class="tool-row">
-          <input class="input" id="pan-code" type="text" placeholder="提取码（可选）" maxlength="4">
+          <input class="input" id="pan-code" type="text" placeholder="提取码（可选）" maxlength="8">
           <button class="btn btn-ghost btn-sm" id="pan-copy" type="button">复制链接</button>
-          <button class="btn btn-primary btn-sm" id="pan-open" type="button">打开网盘</button>
+          <button class="btn btn-primary btn-sm" id="pan-open" type="button">打开解析页</button>
           <button class="btn btn-ghost btn-sm" id="pan-clear" type="button">清空</button>
         </div>
         <div class="rand-stage">
           <div class="rand-result pan-url" id="pan-result">等待解析……</div>
         </div>
-        <p class="pixel-tip">调研更新（2026-09）：老牌解析站 KinhDown 已于 2023 年停止百度云解析并退款，官方明确劝退付费解析；现存在线解析站多为广告推广、随时失效，甚至有钓鱼风险，不建议跳转。整理好链接走官方页面，或安装开源浏览器脚本（如「网盘直链下载助手」类）+ IDM / Motrix 下载器更稳妥。</p>
+        <div class="pan-plat" id="pan-plat"></div>
+        <details class="pan-guide">
+          <summary>满速下载三步走（LinkSwift + IDM）</summary>
+          <ol>
+            <li>点「打开解析页」进入分享页，若提示提取码则输入，然后点「保存到网盘」转存到自己的网盘；</li>
+            <li>登录网页版后进入自己网盘主页，文件行会出现油猴脚本 LinkSwift 注入的「获取直链」按钮，点击拿到官方直链；</li>
+            <li>复制直链，交给 IDM / Motrix / Aria2 多线程下载，速度拉满。</li>
+          </ol>
+        </details>
+        <details class="pan-guide">
+          <summary>直链解析原理（以百度网盘为例）</summary>
+          <ol>
+            <li>分享验证：向官方接口 <code>share/verify</code> 提交链接短码 surl 与提取码，换取分享会话（shareid / uk / sekey）；</li>
+            <li>文件清单：调用 <code>xpan/share?method=list</code> 列出分享内的文件，得到每个文件的 fs_id；</li>
+            <li>临时转存：<code>share/transfer</code> 把分享文件转存进你自己的网盘（以你的账号身份执行）；</li>
+            <li>换取直链：调用 <code>filemetas?dlink=1</code> 拿到官方签名的 dlink 直链——直链本身不走限速通道；</li>
+            <li>满速下载：把直链交给多线程下载器（IDM 等）即可全速下载。</li>
+          </ol>
+          <p>关键：整个过程使用「你自己的网盘登录态」向百度官方接口取直链，不破解、不盗链，也不依赖任何第三方解析站。</p>
+        </details>
+        <p class="pixel-tip">调研更新（2026-09）：在线解析站多已停服或存在钓鱼风险（如 KinhDown 已停止百度解析），不建议跳转。推荐「油猴脚本 LinkSwift（开源，支持百度 / 夸克 / 123 / UC / 天翼 / 迅雷 / 阿里等九大网盘）+ IDM」组合，自己取官方直链最稳妥。</p>
       </div>
     </div>
   </div>
@@ -2577,31 +2632,41 @@
     var panLink = el('pan-link');
     var panCode = el('pan-code');
     var panResult = el('pan-result');
+    var panPlat = el('pan-plat');
+
+    var PAN_PLATS = [
+      { key: 'baidu', name: '百度网盘', re: /pan\.baidu\.com\/s\/(1[A-Za-z0-9_-]+)/, open: function (id, code) { return 'https://pan.baidu.com/s/' + id + (code ? '?pwd=' + code : ''); } },
+      { key: 'quark', name: '夸克网盘', re: /pan\.quark\.cn\/s\/([A-Za-z0-9]+)/, open: function (id) { return 'https://pan.quark.cn/s/' + id; } },
+      { key: '123pan', name: '123 云盘', re: /(?:www\.)?123pan\.com\/s\/([A-Za-z0-9_-]+)/, open: function (id) { return 'https://www.123pan.com/s/' + id; } },
+      { key: 'uc', name: 'UC 网盘', re: /drive\.uc\.cn\/s\/([A-Za-z0-9]+)/, open: function (id) { return 'https://drive.uc.cn/s/' + id; } },
+      { key: '189', name: '天翼云盘', re: /cloud\.189\.cn\/web\/share\?code=([A-Za-z0-9]+)/, open: function (id) { return 'https://cloud.189.cn/web/share?code=' + id; } },
+      { key: 'xunlei', name: '迅雷网盘', re: /pan\.xunlei\.com\/s\/([A-Za-z0-9]+)/, open: function (id) { return 'https://pan.xunlei.com/s/' + id; } },
+      { key: 'alipan', name: '阿里云盘', re: /(?:www\.)?alipan\.com\/s\/([A-Za-z0-9]+)/, open: function (id) { return 'https://www.alipan.com/s/' + id; } }
+    ];
 
     function panBuild() {
       var raw = panLink.value.trim();
-      var share = '';
-      var m = raw.match(/s\/1[A-Za-z0-9_-]+/);
-      if (m) share = m[0].slice(2);
-      else {
-        var m2 = raw.match(/1[A-Za-z0-9_-]{10,}/);
-        if (m2) share = m2[0];
+      var plat = null, id = '', code = panCode.value.trim();
+      for (var i = 0; i < PAN_PLATS.length; i++) {
+        var m = raw.match(PAN_PLATS[i].re);
+        if (m) { plat = PAN_PLATS[i]; id = m[1]; break; }
       }
-      if (!share) {
-        panResult.textContent = '没识别到分享 ID，请检查链接。';
+      if (!plat || !id) {
+        panResult.textContent = '没识别到分享链接，请检查（支持百度 / 夸克 / 123 / UC / 天翼 / 迅雷 / 阿里）。';
         panResult.classList.remove('final');
+        panPlat.textContent = '';
         return '';
       }
-      var code = panCode.value.trim();
-      var url = 'https://pan.baidu.com/s/' + share + (code ? '?pwd=' + code : '');
+      var url = plat.open(id, code);
       panResult.textContent = url;
       panResult.classList.add('final');
+      panPlat.textContent = '已识别：' + plat.name + (plat.key === 'baidu' && code ? ' · 提取码 ' + code : '');
       return url;
     }
 
     panLink.addEventListener('input', panBuild);
     panCode.addEventListener('input', function () {
-      panCode.value = panCode.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 4);
+      panCode.value = panCode.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 8);
       panBuild();
     });
 
@@ -2636,6 +2701,7 @@
       panCode.value = '';
       panResult.textContent = '等待解析……';
       panResult.classList.remove('final');
+      panPlat.textContent = '';
     });
   })();
 </script>
