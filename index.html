@@ -1094,6 +1094,27 @@
   }
   .pan-guide p { font-size: 0.78rem; color: var(--muted); margin: 6px 0 0; line-height: 1.6; }
 
+  /* 一键取直链结果列表 */
+  .pan-links { display: flex; flex-direction: column; gap: 10px; }
+  .pan-link-item {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 10px 12px;
+    text-align: left;
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .pan-link-name { font-size: 0.85rem; color: var(--text); word-break: break-all; }
+  .pan-link-size { font-family: var(--mono); font-size: 0.7rem; color: var(--accent); }
+  .pan-link-url {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: #93c5fd;
+    word-break: break-all;
+    margin: 6px 0 8px;
+    line-height: 1.5;
+  }
+  .pan-link-url.dim { color: var(--muted); }
+
   /* 绩点计算器 */
   .gpa-grid {
     display: grid;
@@ -1602,7 +1623,7 @@
       <div class="tool-panel" id="panel-pan">
         <div class="tool-head">
           <h3>网盘助手</h3>
-          <p>粘贴网盘分享链接，复制后用「云析」一键解析高速下载（开源 · 安卓 App）。</p>
+          <p>粘贴网盘分享链接，一键打开解析页；直链获取需登录态，电脑走油猴脚本，手机走云析。</p>
         </div>
         <div class="tool-row">
           <input class="input grow" id="pan-link" type="text" placeholder="粘贴分享链接：百度 / 夸克 / UC / 123 / 天翼 / 迅雷" maxlength="400">
@@ -1610,7 +1631,8 @@
         <div class="tool-row">
           <input class="input" id="pan-code" type="text" placeholder="提取码（可选）" maxlength="8">
           <button class="btn btn-ghost btn-sm" id="pan-copy" type="button">复制链接</button>
-          <button class="btn btn-primary btn-sm" id="pan-open" type="button">打开云析</button>
+          <button class="btn btn-primary btn-sm" id="pan-parse" type="button">一键取直链</button>
+          <button class="btn btn-ghost btn-sm" id="pan-open" type="button">打开解析页</button>
           <button class="btn btn-ghost btn-sm" id="pan-clear" type="button">清空</button>
         </div>
         <div class="rand-stage">
@@ -1618,9 +1640,9 @@
         </div>
         <div class="pan-plat" id="pan-plat"></div>
         <p class="pixel-tip">
-          用法：粘贴链接 → 自动识别并整理好 → 复制 → 打开云析 App 即自动解析下载。
-          云析为开源项目（GitHub：CYQawa/YunX · AGPL-3.0），仅安卓版；作者提示请勿用于百度网盘（有账号风控风险）。
-          电脑端下载大文件仍推荐「油猴脚本 LinkSwift + IDM」组合。
+          一键取直链：本站 Vercel 托管版提供后端解析（需要登录凭证，见环境变量配置）；GitHub Pages 静态版会自动降级为引导。
+          手动流程——电脑：打开解析页 → 转存 → 油猴脚本 LinkSwift 一键取官方直链 → IDM 满速下载；手机：复制链接 → 云析 App 解析。
+          注：云析作者提示请勿用于百度网盘（有账号风控风险）。
         </p>
       </div>
     </div>
@@ -2681,7 +2703,81 @@
     });
 
     el('pan-open').addEventListener('click', function () {
-      window.open('https://github.com/CYQawa/YunX/releases', '_blank', 'noopener');
+      var url = panBuild();
+      if (url) window.open(url, '_blank', 'noopener');
+    });
+
+    // 一键取直链（Vercel 托管版后端；静态版自动降级）
+    function escHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+    function renderLinks(files) {
+      var html = '<div class="pan-links">';
+      files.forEach(function (f, i) {
+        html += '<div class="pan-link-item"><div class="pan-link-name">' + escHtml(f.name) +
+          (f.sizeText ? ' <span class="pan-link-size">' + escHtml(f.sizeText) + '</span>' : '') + '</div>';
+        if (f.dlink) {
+          html += '<div class="pan-link-url">' + escHtml(f.dlink) +
+            '</div><button class="btn btn-ghost btn-sm pan-copy-link" data-i="' + i + '" type="button">复制直链</button>';
+        } else {
+          html += '<div class="pan-link-url dim">' + escHtml(f.error || '获取失败') + '</div>';
+        }
+        html += '</div>';
+      });
+      html += '</div>';
+      panResult.innerHTML = html;
+      panResult.classList.add('final');
+      var btns = panResult.querySelectorAll('.pan-copy-link');
+      for (var k = 0; k < btns.length; k++) {
+        (function (btn) {
+          btn.addEventListener('click', function () {
+            var dl = files[parseInt(btn.getAttribute('data-i'), 10)].dlink;
+            function fallback() {
+              var ta = document.createElement('textarea');
+              ta.value = dl;
+              ta.style.position = 'fixed';
+              ta.style.opacity = '0';
+              document.body.appendChild(ta);
+              ta.select();
+              try { document.execCommand('copy'); } catch (e) {}
+              document.body.removeChild(ta);
+              btn.textContent = '已复制';
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(dl).then(function () { btn.textContent = '已复制'; }, fallback);
+            } else fallback();
+          });
+        })(btns[k]);
+      }
+    }
+    el('pan-parse').addEventListener('click', function () {
+      var raw = panLink.value.trim();
+      var isBaidu = /pan\.baidu\.com\/s\//.test(raw);
+      if (!isBaidu) {
+        panResult.textContent = '一键取直链目前仅支持百度网盘分享链接。';
+        panResult.classList.remove('final');
+        return;
+      }
+      var url = panBuild();
+      if (!url) return;
+      panResult.textContent = '解析中：验证分享 → 列文件 → 转存 → 取直链（首次约 10~30 秒，请稍候）……';
+      panResult.classList.remove('final');
+      var btn = this;
+      btn.disabled = true;
+      fetch('/api/parse?url=' + encodeURIComponent(raw) + '&pwd=' + encodeURIComponent(panCode.value))
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          btn.disabled = false;
+          if (!j.ok) { panResult.textContent = '解析失败：' + (j.error || '未知错误'); return; }
+          if (!j.files || !j.files.length) { panResult.textContent = j.note || '分享中没有文件'; return; }
+          renderLinks(j.files);
+        })
+        .catch(function () {
+          btn.disabled = false;
+          panResult.textContent = '直链服务不可用：当前页面为静态托管（GitHub Pages）。请通过 Vercel 域名访问本站，即可启用一键取直链。';
+        });
     });
 
     el('pan-clear').addEventListener('click', function () {
