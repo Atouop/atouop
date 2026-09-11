@@ -86,7 +86,13 @@ async function listFiles(shareid, uk, dir, surl, pwd) {
       'Referer': 'https://pan.baidu.com/',
     },
   });
-  if (j.errno !== 0) throw new Error('列文件失败（errno=' + j.errno + '）');
+  if (j.errno !== 0) {
+    const map = {
+      '-9': '百度风控拦截：列文件失败（分享解析已失效，请用电脑端 LinkSwift）',
+      '9019': '百度风控拦截：列文件失败（分享解析已失效，请用电脑端 LinkSwift）',
+    };
+    throw new Error(map[j.errno] || ('列文件失败（errno=' + j.errno + '）'));
+  }
   return j.list || [];
 }
 
