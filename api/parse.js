@@ -74,13 +74,17 @@ async function verify(surl, pwd) {
   }
 }
 
-// 3. 列出分享目录
+// 3. 列出分享目录（xpan 客户端接口，规避网页接口对数据中心 IP 的风控）
 async function listFiles(shareid, uk, dir, surl) {
-  const randsk = (COOKIE.match(/BDCLND=([^;]+)/) || [])[1] || '';
-  const url = 'https://pan.baidu.com/share/list?shareid=' + shareid + '&uk=' + uk +
-    '&randsk=' + encodeURIComponent(randsk) + '&root=' + (dir ? '0' : '1') +
-    '&dir=' + encodeURIComponent(dir || '');
-  const j = await jfetch(url, { headers: { 'Referer': 'https://pan.baidu.com/share/init?surl=' + encodeURIComponent(surl) } });
+  let url = 'https://pan.baidu.com/rest/2.0/xpan/share?method=list&shorturl=' + encodeURIComponent(surl) +
+    '&page=1&num=100&root=' + (dir ? '0' : '1');
+  if (dir) url += '&dir=' + encodeURIComponent(dir);
+  const j = await jfetch(url, {
+    headers: {
+      'User-Agent': 'netdisk;12.24.6;piano;android-android;16;JSbridge4.4.0;jointBridge;1.1.0',
+      'Referer': 'https://pan.baidu.com/',
+    },
+  });
   if (j.errno !== 0) throw new Error('列文件失败（errno=' + j.errno + '）');
   return j.list || [];
 }
