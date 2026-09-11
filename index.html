@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<script>document.documentElement.classList.add('js');</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Atouop — 个人主页</title>
@@ -63,6 +64,175 @@
     pointer-events: none;
   }
 
+  /* ===== 入场引导（boot 幕布） ===== */
+  #boot {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+  }
+
+  #boot .panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 50.6%;
+    background: #060a12;
+    will-change: transform;
+  }
+
+  #boot .panel.top {
+    top: 0;
+    border-bottom: 1px solid var(--line-strong);
+  }
+
+  #boot .panel.bottom {
+    bottom: 0;
+    border-top: 1px solid var(--line-strong);
+    background: #070b14;
+  }
+
+  #boot .panel.top::after,
+  #boot .panel.bottom::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--accent);
+    opacity: 0.55;
+    box-shadow: 0 0 18px rgba(61, 123, 255, 0.65);
+  }
+
+  #boot .panel.top::after { bottom: -1px; }
+  #boot .panel.bottom::after { top: -1px; }
+
+  #boot .boot-inner {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    padding: 0 24px;
+    text-align: center;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+
+  #boot.done { pointer-events: none; }
+  #boot.done .panel { transition: transform 0.8s cubic-bezier(0.83, 0, 0.17, 1); }
+  #boot.done .panel.top { transform: translateY(-102%); }
+  #boot.done .panel.bottom { transform: translateY(102%); transition-delay: 0.05s; }
+  #boot.done .boot-inner { opacity: 0; transform: scale(0.985); }
+
+  #boot.hidden { display: none; }
+
+  .boot-logo {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: clamp(1.5rem, 4.6vw, 2.25rem);
+    letter-spacing: 0.42em;
+    color: var(--text);
+    display: flex;
+  }
+
+  .boot-logo span {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(18px);
+    animation: bootLetter 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  @keyframes bootLetter { to { opacity: 1; transform: none; } }
+
+  .boot-status {
+    font-family: var(--mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    min-height: 1.4em;
+  }
+
+  .boot-status.swap { animation: statusIn 0.32s ease; }
+
+  @keyframes statusIn {
+    from { opacity: 0; transform: translateY(4px); }
+  }
+
+  .boot-bar {
+    width: min(300px, 62vw);
+    height: 2px;
+    border-radius: 999px;
+    background: rgba(150, 168, 200, 0.16);
+    overflow: hidden;
+  }
+
+  .boot-bar i {
+    display: block;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent-deep), var(--accent), #9fc0ff);
+    box-shadow: 0 0 14px rgba(61, 123, 255, 0.55);
+  }
+
+  /* ===== 入场编排（脚本给 html 添加 .js 后生效） ===== */
+  .js .hero-anim {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(5px);
+    transition:
+      opacity 0.65s ease,
+      transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+      filter 0.65s ease;
+    transition-delay: var(--d, 0s);
+  }
+
+  .js .hero-anim.in { opacity: 1; transform: none; filter: none; }
+
+  .js .nav-anim {
+    opacity: 0;
+    transform: translateY(-14px);
+    transition:
+      opacity 0.5s ease,
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      color 0.2s ease;
+    transition-delay: var(--d, 0s);
+  }
+
+  .js .nav-anim.in { opacity: 1; transform: none; }
+
+  .js .scroll-hint-anim {
+    opacity: 0;
+    transition: opacity 0.9s ease;
+    transition-delay: var(--d, 0s);
+  }
+
+  .js .scroll-hint-anim.in { opacity: 1; }
+
+  .js .hero-zoom {
+    transform: scale(1.12);
+    transition: transform 2.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .js .hero-zoom.in { transform: scale(1); }
+
+  .js .h1-type .ch {
+    display: inline-block;
+    opacity: 0;
+    animation: chIn 0.34s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .js .h1-type .cursor {
+    transition: transform 0.09s ease-out;
+    will-change: transform;
+  }
+
+  @keyframes chIn {
+    from { opacity: 0; transform: translateY(0.22em); filter: blur(5px); }
+    to { opacity: 1; transform: none; filter: none; }
+  }
+
   /* ===== 容器与排版基础 ===== */
   .wrap {
     width: 100%;
@@ -122,6 +292,13 @@
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     border-bottom: 1px solid var(--line);
+    transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+  }
+
+  header.scrolled {
+    background: rgba(5, 7, 12, 0.92);
+    border-bottom-color: var(--line-strong);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
   }
 
   .nav-inner {
@@ -157,6 +334,7 @@
   }
 
   nav a {
+    position: relative;
     font-family: var(--mono);
     font-size: 0.8125rem;
     letter-spacing: 0.08em;
@@ -166,6 +344,21 @@
   }
 
   nav a:hover { color: var(--text); }
+
+  nav a::after {
+    content: "";
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    bottom: 0;
+    height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  nav a:hover::after { transform: scaleX(1); }
 
   /* ===== Hero ===== */
   .hero {
@@ -253,6 +446,9 @@
   }
 
   .btn {
+    position: relative;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -263,10 +459,23 @@
     font-size: 0.875rem;
     letter-spacing: 0.06em;
     border-radius: 4px;
-    transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+    transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, color 0.18s ease, box-shadow 0.25s ease;
   }
 
   .btn:hover { transform: translateY(-2px); }
+  .btn:active { transform: translateY(-1px) scale(0.965); }
+
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.32;
+    transform: scale(0);
+    animation: ripple 0.55s ease-out forwards;
+    pointer-events: none;
+  }
+
+  @keyframes ripple { to { transform: scale(1); opacity: 0; } }
 
   .btn-primary {
     background: var(--accent);
@@ -274,7 +483,7 @@
     border: 1px solid var(--accent);
   }
 
-  .btn-primary:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
+  .btn-primary:hover { background: var(--accent-deep); border-color: var(--accent-deep); box-shadow: 0 8px 26px rgba(61, 123, 255, 0.3); }
 
   .btn-ghost {
     background: transparent;
@@ -379,6 +588,8 @@
   }
 
   .card {
+    position: relative;
+    overflow: hidden;
     background: var(--surface);
     border: 1px solid var(--line);
     border-top: 2px solid var(--line-strong);
@@ -386,6 +597,18 @@
     padding: 28px 24px 26px;
     transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
   }
+
+  .card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(61, 123, 255, 0.14), transparent 68%);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+  }
+
+  .card:hover::after { opacity: 1; }
 
   .card:hover {
     border-color: var(--accent);
@@ -527,11 +750,16 @@
   /* ===== 滚动显现 ===== */
   .reveal {
     opacity: 0;
-    transform: translateY(22px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
+    transform: translateY(24px);
+    filter: blur(5px);
+    transition:
+      opacity 0.7s ease,
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      filter 0.7s ease;
+    will-change: opacity, transform, filter;
   }
 
-  .reveal.in { opacity: 1; transform: none; }
+  .reveal.in { opacity: 1; transform: none; filter: none; }
 
   /* ===== 响应式 ===== */
   @media (max-width: 900px) {
@@ -551,10 +779,16 @@
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .cursor, .scroll-hint .bar::after { animation: none; }
-    .reveal { opacity: 1; transform: none; transition: none; }
+    .reveal, .hero-anim, .nav-anim { opacity: 1; transform: none; filter: none; transition: none; }
+    .scroll-hint-anim { opacity: 1; transition: none; }
+    .hero-zoom { transform: none; }
     .btn:hover, .card:hover, .work-row:hover { transform: none; }
+    #boot { display: none; }
   }
 </style>
+
+  <!-- ===== Umami 访问统计 ===== -->
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="47cffba6-a644-4960-86d6-03aec8c1d30a"></script>
 </head>
 <body id="top">
 
@@ -564,26 +798,26 @@
   <!-- ===== 顶栏 ===== -->
   <header>
     <div class="wrap nav-inner">
-      <a class="logo" href="#top">ATOUOP<span class="logo-dot"></span></a>
+      <a class="logo nav-anim" style="--d:.22s" href="#top">ATOUOP<span class="logo-dot"></span></a>
       <nav>
-        <a class="home-link" href="#top">首页</a>
-        <a href="#about">关于</a>
-        <a href="#fields">领域</a>
-        <a href="#works">作品</a>
-        <a href="#contact">联系</a>
+        <a class="home-link nav-anim" style="--d:.3s" href="#top">首页</a>
+        <a class="nav-anim" style="--d:.36s" href="#about">关于</a>
+        <a class="nav-anim" style="--d:.42s" href="#fields">领域</a>
+        <a class="nav-anim" style="--d:.48s" href="#works">作品</a>
+        <a class="nav-anim" style="--d:.54s" href="#contact">联系</a>
       </nav>
     </div>
   </header>
 
   <!-- ===== Hero ===== -->
   <section class="hero">
-    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="hero-bg hero-zoom" aria-hidden="true"></div>
     <div class="wrap">
-      <p class="prompt-line"><span class="dollar">atouop@web:~$</span> whoami</p>
-      <h1>ATOUOP<span class="cursor" aria-hidden="true"></span></h1>
-      <p class="hero-sub">这里是我的个人主页 —— 一个<strong>安静、专注</strong>的数字角落。</p>
-      <p class="echo-line">&gt; welcome to my corner of the web</p>
-      <div class="cta-row">
+      <p class="prompt-line hero-anim" style="--d:.08s"><span class="dollar">atouop@web:~$</span> whoami</p>
+      <h1 class="hero-anim h1-type" style="--d:.2s">ATOUOP<span class="cursor" aria-hidden="true"></span></h1>
+      <p class="hero-sub hero-anim" style="--d:.62s">这里是我的个人主页 —— 一个<strong>安静、专注</strong>的数字角落。</p>
+      <p class="echo-line hero-anim" style="--d:.8s">&gt; welcome to my corner of the web</p>
+      <div class="cta-row hero-anim" style="--d:.94s">
         <a class="btn btn-primary" href="#about">
           关于我
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
@@ -591,7 +825,7 @@
         <a class="btn btn-ghost" href="#works">我的作品</a>
       </div>
     </div>
-    <div class="scroll-hint" aria-hidden="true">
+    <div class="scroll-hint scroll-hint-anim" style="--d:1.1s" aria-hidden="true">
       <span>scroll</span>
       <span class="bar"></span>
     </div>
@@ -732,8 +966,224 @@
         }
       });
     }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-    items.forEach(function (el) { io.observe(el); });
+    items.forEach(function (el) {
+      var siblings = el.parentElement.querySelectorAll('.reveal');
+      var idx = Array.prototype.indexOf.call(siblings, el);
+      if (idx > 0) el.style.transitionDelay = Math.min(idx * 0.08, 0.5) + 's';
+      io.observe(el);
+    });
   }
+</script>
+
+<script>
+  // ===== 入场动画：boot 幕布 + 开场编排 =====
+  (function () {
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var visited = false;
+    try { visited = sessionStorage.getItem('atouop:booted') === '1'; } catch (e) {}
+
+    var staged = document.querySelectorAll('.hero-anim, .nav-anim, .scroll-hint-anim');
+
+    function startTyping() {
+      var h1 = document.querySelector('.hero h1');
+      if (!h1 || reduceMotion) return;
+      var textNode = h1.firstChild;
+      if (!textNode || textNode.nodeType !== 3) return;
+      var text = textNode.nodeValue.replace(/\s+/g, '');
+      var cursor = h1.querySelector('.cursor');
+
+      var frag = document.createDocumentFragment();
+      var spans = [];
+      for (var i = 0; i < text.length; i++) {
+        var s = document.createElement('span');
+        s.className = 'ch';
+        s.textContent = text[i];
+        s.style.animationDelay = (i * 85) + 'ms';
+        frag.appendChild(s);
+        spans.push(s);
+      }
+      h1.replaceChild(frag, textNode);
+
+      if (cursor && spans.length) {
+        spans.forEach(function (s, idx) {
+          window.setTimeout(function () {
+            var end = cursor.getBoundingClientRect().left;
+            var chRight = s.getBoundingClientRect().right;
+            cursor.style.transform = 'translateX(' + (chRight - end) + 'px)';
+          }, idx * 85 + 60);
+        });
+        window.setTimeout(function () { cursor.style.transform = ''; }, spans.length * 85 + 460);
+      }
+    }
+
+    function playEntrance() {
+      staged.forEach(function (el) { el.classList.add('in'); });
+      var heroBg = document.querySelector('.hero-zoom');
+      if (heroBg) heroBg.classList.add('in');
+      window.setTimeout(startTyping, 240);
+    }
+
+    function revealNow() {
+      staged.forEach(function (el) {
+        el.classList.add('in');
+        el.style.transitionDelay = '0s';
+      });
+      var heroBg = document.querySelector('.hero-zoom');
+      if (heroBg) heroBg.classList.add('in');
+    }
+
+    if (reduceMotion) { revealNow(); return; }
+
+    if (visited) {
+      playEntrance();
+      return;
+    }
+
+    // ===== 首次进入：终端 boot 幕布 =====
+    var boot = document.createElement('div');
+    boot.id = 'boot';
+    boot.setAttribute('aria-hidden', 'true');
+    boot.innerHTML =
+      '<div class="panel top"></div>' +
+      '<div class="panel bottom"></div>' +
+      '<div class="boot-inner">' +
+      '<div class="boot-logo"><span>A</span><span>T</span><span>O</span><span>U</span><span>O</span><span>P</span></div>' +
+      '<div class="boot-status"></div>' +
+      '<div class="boot-bar"><i></i></div>' +
+      '</div>';
+    document.body.appendChild(boot);
+
+    var statusEl = boot.querySelector('.boot-status');
+    var barEl = boot.querySelector('.boot-bar i');
+    var letters = boot.querySelectorAll('.boot-logo span');
+    letters.forEach(function (s, i) { s.style.animationDelay = (140 + i * 75) + 'ms'; });
+
+    var statuses = [
+      'connecting to the abyss',
+      'lighting the starfield',
+      'waking the cursor',
+      'aiming a meteor shower',
+      'opening the door'
+    ];
+    var si = 0;
+    function swapStatus() {
+      statusEl.classList.remove('swap');
+      void statusEl.offsetWidth;
+      statusEl.textContent = '> ' + statuses[si % statuses.length];
+      statusEl.classList.add('swap');
+      si++;
+    }
+    swapStatus();
+    var statusTimer = window.setInterval(swapStatus, 300);
+
+    var BAR_MS = 1050;
+    var barStart = performance.now();
+    function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+    function tickBar(now) {
+      var p = Math.min((now - barStart) / BAR_MS, 1);
+      barEl.style.width = (easeOut(p) * 100).toFixed(2) + '%';
+      if (p < 1) {
+        window.requestAnimationFrame(tickBar);
+      } else {
+        window.clearInterval(statusTimer);
+        window.setTimeout(finish, 120);
+      }
+    }
+    window.requestAnimationFrame(tickBar);
+
+    function finish() {
+      boot.classList.add('done');
+      playEntrance();
+      try { sessionStorage.setItem('atouop:booted', '1'); } catch (e) {}
+      window.dispatchEvent(new CustomEvent('atouop:bootdone'));
+      window.setTimeout(function () {
+        boot.classList.add('hidden');
+        if (boot.parentNode) boot.parentNode.removeChild(boot);
+      }, 1000);
+    }
+  })();
+</script>
+
+<script>
+  // ===== 按钮涟漪、卡片光影、平滑滚动与顶栏状态 =====
+  (function () {
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // --- 按钮点击涟漪 ---
+    document.addEventListener('pointerdown', function (e) {
+      if (reduceMotion) return;
+      var btn = e.target.closest('.btn');
+      if (!btn) return;
+      var rect = btn.getBoundingClientRect();
+      var d = Math.max(rect.width, rect.height) * 2.2;
+      var r = document.createElement('span');
+      r.className = 'ripple';
+      r.style.width = d + 'px';
+      r.style.height = d + 'px';
+      r.style.left = (e.clientX - rect.left - d / 2) + 'px';
+      r.style.top = (e.clientY - rect.top - d / 2) + 'px';
+      btn.appendChild(r);
+      r.addEventListener('animationend', function () { r.remove(); });
+    });
+
+    // --- 卡片光标追踪光影 ---
+    document.querySelectorAll('.card').forEach(function (card) {
+      card.addEventListener('mousemove', function (e) {
+        var r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+        card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+      });
+    });
+
+    // --- 平滑滚动（easeInOutCubic） ---
+    function animateScrollTo(targetY, duration) {
+      if (reduceMotion) { window.scrollTo(0, targetY); return; }
+      var startY = window.pageYOffset || document.documentElement.scrollTop;
+      var diff = targetY - startY;
+      if (Math.abs(diff) < 2) return;
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min((now - t0) / duration, 1);
+        var eased = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+        window.scrollTo(0, startY + diff * eased);
+        if (p < 1) window.requestAnimationFrame(step);
+      }
+      window.requestAnimationFrame(step);
+    }
+
+    var navH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h'), 10) || 64;
+
+    document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        var href = a.getAttribute('href');
+        var targetY = 0;
+        if (href && href.length > 1) {
+          var target = document.querySelector(href);
+          if (!target) return;
+          targetY = target.getBoundingClientRect().top + (window.pageYOffset || document.documentElement.scrollTop) - navH;
+        }
+        e.preventDefault();
+        var dist = Math.abs(targetY - (window.pageYOffset || document.documentElement.scrollTop));
+        animateScrollTo(Math.max(targetY, 0), Math.min(950, 420 + dist * 0.45));
+        if (history.replaceState) history.replaceState(null, '', href);
+      });
+    });
+
+    // --- 顶栏滚动状态 ---
+    var header = document.querySelector('header');
+    var ticking = false;
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(function () {
+        header.classList.toggle('scrolled', window.scrollY > 10);
+        ticking = false;
+      });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
 </script>
 
 <script>
@@ -955,6 +1405,12 @@
     window.addEventListener('resize', resize);
     window.addEventListener('mousemove', onMove);
     document.addEventListener('visibilitychange', onVisibility);
+
+    // 入场幕布拉开时，用一轮流星雨庆祝
+    window.addEventListener('atouop:bootdone', function () {
+      if (reduced) return;
+      spawnMeteorRound(performance.now());
+    });
 
     resize();
     if (!reduced) raf = window.requestAnimationFrame(loop);
