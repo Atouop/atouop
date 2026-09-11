@@ -1115,6 +1115,67 @@
   }
   .pan-link-url.dim { color: var(--muted); }
 
+  /* 世界时钟 */
+  .clock-stage {
+    position: relative;
+    border: 1px solid rgba(120, 160, 255, 0.18);
+    border-radius: 14px;
+    overflow: hidden;
+    background: #04060c;
+    box-shadow: 0 0 40px rgba(40, 90, 220, 0.18), inset 0 0 60px rgba(10, 20, 60, 0.5);
+    margin: 10px 0 12px;
+  }
+  .clock-stage canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .clock-wake {
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    font-size: 0.68rem;
+    font-family: var(--mono);
+    color: rgba(150, 200, 255, 0.85);
+    background: rgba(10, 25, 60, 0.55);
+    border: 1px solid rgba(120, 180, 255, 0.25);
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.08em;
+    backdrop-filter: blur(6px);
+    pointer-events: none;
+  }
+  .clock-zone {
+    color: var(--text);
+    background: #0a1122;
+    border-color: rgba(120, 160, 255, 0.25);
+    cursor: pointer;
+  }
+  .clock-zone:focus { border-color: var(--accent); }
+  .clock-world {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 2px;
+  }
+  .clock-city {
+    flex: 1 1 130px;
+    border: 1px solid rgba(120, 160, 255, 0.15);
+    border-radius: 10px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    text-align: center;
+  }
+  .clock-city b { display: block; font-size: 0.7rem; font-weight: 500; color: var(--muted); letter-spacing: 0.1em; }
+  .clock-city i {
+    display: block;
+    font-style: normal;
+    font-family: var(--mono);
+    font-size: 0.92rem;
+    color: #cfe3ff;
+    margin-top: 3px;
+  }
+
   /* 绩点计算器 */
   .gpa-grid {
     display: grid;
@@ -1470,6 +1531,12 @@
           <span class="tool-card-desc">粘贴分享链接，一键跳转云析解析下载</span>
           <span class="tool-card-arrow">→</span>
         </button>
+        <button class="tool-card" type="button" data-target="panel-clock">
+          <span class="tool-card-no">09</span>
+          <span class="tool-card-name">世界时钟</span>
+          <span class="tool-card-desc">粒子数字时钟，时区自由切换，屏幕常亮</span>
+          <span class="tool-card-arrow">→</span>
+        </button>
       </div>
       <p class="tool-hub-foot">ATOUOP · TOOLS</p>
     </div>
@@ -1646,6 +1713,23 @@
           ⚠️ 百度网盘解析受官方风控限制，已失效（云服务器 IP 被识别拦截）；夸克 / 123 / UC 等网盘可继续使用。
           电脑端下载百度文件请用：网页登录 → 转存 → LinkSwift 一键直链 → IDM 满速下载；手机可用云析 App（勿用百度，防账号风控）。
         </p>
+      </div>
+
+      <!-- 世界时钟 -->
+      <div class="tool-panel" id="panel-clock">
+        <div class="tool-head">
+          <h3>世界时钟</h3>
+          <p>粒子数字时钟 · 自由选择时区对标世界时间 · 屏幕常亮 · 精确到秒。</p>
+        </div>
+        <div class="tool-row">
+          <select class="input grow clock-zone" id="clock-zone"></select>
+          <button class="btn btn-ghost btn-sm" id="clock-full" type="button">全屏</button>
+        </div>
+        <div class="clock-stage">
+          <canvas id="clock-canvas" width="960" height="400"></canvas>
+          <div class="clock-wake" id="clock-wake">屏幕常亮已开启</div>
+        </div>
+        <div class="clock-world" id="clock-world"></div>
       </div>
     </div>
   </div>
@@ -2198,6 +2282,7 @@
 
     function closeAll() {
       if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      clockStop();
       view.classList.remove('open');
       hub.classList.remove('open');
       view.setAttribute('aria-hidden', 'true');
@@ -2206,6 +2291,7 @@
     }
 
     function openTool(targetId) {
+      clockStop();
       panels.forEach(function (p) { p.classList.remove('open'); });
       var panel = document.getElementById(targetId);
       if (!panel) return;
@@ -2215,12 +2301,14 @@
       view.classList.add('open');
       view.setAttribute('aria-hidden', 'false');
       view.scrollTop = 0;
+      if (targetId === 'panel-clock') clockStart();
     }
 
     el('tool-entry').addEventListener('click', openHub);
     el('tool-hub-close').addEventListener('click', closeAll);
     el('tool-view-back').addEventListener('click', function () {
       if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      clockStop();
       view.classList.remove('open');
       view.setAttribute('aria-hidden', 'true');
     });
@@ -2789,6 +2877,316 @@
       panResult.textContent = '粘贴链接后自动识别平台';
       panResult.classList.remove('final');
       panPlat.textContent = '';
+    });
+
+    // ===== 世界时钟 =====
+    var clockZone = el('clock-zone');
+    var clockCanvas = el('clock-canvas');
+    var clockCtx = clockCanvas.getContext('2d');
+    var clockWakeEl = el('clock-wake');
+    var clockWorld = el('clock-world');
+    var clockAnim = null;
+    var wakeLock = null;
+    var clockRun = false;
+    var lastTick = -99999;
+    var clockOffset = 480;
+    var particles = [];
+    var borderParts = [];
+    var CELL = 17, CX0 = 21, CY0 = 134;
+
+    var ZONES = [
+      ['-720', 'UTC-12 埃尼威托克'], ['-660', 'UTC-11 帕果帕果'], ['-600', 'UTC-10 檀香山'],
+      ['-540', 'UTC-9 安克雷奇'], ['-480', 'UTC-8 洛杉矶 / 温哥华'], ['-420', 'UTC-7 丹佛'],
+      ['-360', 'UTC-6 芝加哥'], ['-300', 'UTC-5 纽约 / 多伦多'], ['-240', 'UTC-4 圣地亚哥'],
+      ['-210', 'UTC-3:30 圣约翰斯'], ['-180', 'UTC-3 圣保罗'], ['-120', 'UTC-2 南乔治亚'],
+      ['-60', 'UTC-1 亚速尔'], ['0', 'UTC±0 伦敦 / 里斯本'],
+      ['60', 'UTC+1 巴黎 / 柏林 / 罗马'], ['120', 'UTC+2 开罗 / 雅典'],
+      ['180', 'UTC+3 莫斯科 / 伊斯坦布尔'], ['210', 'UTC+3:30 德黑兰'],
+      ['240', 'UTC+4 迪拜'], ['270', 'UTC+4:30 喀布尔'],
+      ['300', 'UTC+5 卡拉奇'], ['330', 'UTC+5:30 孟买 / 德里'],
+      ['345', 'UTC+5:45 加德满都'], ['360', 'UTC+6 达卡'], ['390', 'UTC+6:30 仰光'],
+      ['420', 'UTC+7 曼谷 / 雅加达'], ['480', 'UTC+8 北京 / 新加坡 / 香港'],
+      ['525', 'UTC+8:45 尤克拉'], ['540', 'UTC+9 东京 / 首尔'], ['570', 'UTC+9:30 阿德莱德'],
+      ['600', 'UTC+10 悉尼 / 布里斯班'], ['660', 'UTC+11 努美阿'],
+      ['720', 'UTC+12 奥克兰 / 斐济'], ['780', 'UTC+13 汤加'], ['840', 'UTC+14 圣诞岛']
+    ];
+    var WORLD_CITIES = [['北京', 480], ['东京', 540], ['迪拜', 240], ['伦敦', 0], ['纽约', -300], ['悉尼', 600]];
+    var FONT = {
+      '0': ['01110', '10001', '10011', '10101', '11001', '10001', '01110'],
+      '1': ['00100', '01100', '00100', '00100', '00100', '00100', '01110'],
+      '2': ['01110', '10001', '00001', '00010', '00100', '01000', '11111'],
+      '3': ['11111', '00010', '00100', '00010', '00001', '10001', '01110'],
+      '4': ['00010', '00110', '01010', '10010', '11111', '00010', '00010'],
+      '5': ['11111', '10000', '11110', '00001', '00001', '10001', '01110'],
+      '6': ['00110', '01000', '10000', '11110', '10001', '10001', '01110'],
+      '7': ['11111', '00001', '00010', '00100', '01000', '01000', '01000'],
+      '8': ['01110', '10001', '10001', '01110', '10001', '10001', '01110'],
+      '9': ['01110', '10001', '10001', '01111', '00001', '00010', '01100'],
+      ':': ['00000', '00100', '00100', '00000', '00100', '00100', '00000']
+    };
+
+    function zonedTime(offsetMin) {
+      var now = new Date();
+      return new Date(now.getTime() + now.getTimezoneOffset() * 60000 + offsetMin * 60000);
+    }
+    function pad2(n) { return (n < 10 ? '0' : '') + n; }
+    function timeStrOf(d) { return pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds()); }
+
+    function gridFor(str) {
+      var pts = [];
+      var x = 0;
+      for (var i = 0; i < str.length; i++) {
+        var rows = FONT[str[i]] || FONT['0'];
+        for (var r = 0; r < 7; r++) {
+          for (var c = 0; c < 5; c++) {
+            if (rows[r][c] === '1') pts.push({ gx: x + c, gy: r });
+          }
+        }
+        x += 7;
+      }
+      return pts;
+    }
+
+    function clockGeom() {
+      CELL = Math.min(clockCanvas.width / 58, clockCanvas.height / 9);
+      var totalW = 54 * CELL;
+      CX0 = (clockCanvas.width - totalW) / 2 + CELL * 1.5;
+      CY0 = (clockCanvas.height - 7 * CELL) / 2 - 4;
+    }
+
+    function clockTick() {
+      var d = zonedTime(clockOffset);
+      var pts = gridFor(timeStrOf(d));
+      var i, p;
+      for (i = 0; i < pts.length; i++) {
+        if (i < particles.length) p = particles[i];
+        else { p = { seed: Math.random() * 10, sz: 4.5 + Math.random() * 2.5, hue: 205 + Math.random() * 45, life: 1 }; particles.push(p); }
+        p.fx = p.x || (CX0 + pts[i].gx * CELL + CELL / 2);
+        p.fy = p.y || (CY0 + pts[i].gy * CELL + CELL / 2);
+        p.tx = CX0 + pts[i].gx * CELL + CELL / 2;
+        p.ty = CY0 + pts[i].gy * CELL + CELL / 2;
+        p.b = performance.now();
+        p.alive = true;
+      }
+      for (i = pts.length; i < particles.length; i++) {
+        p = particles[i];
+        p.alive = false;
+        p.vx = (Math.random() - 0.5) * 4;
+        p.vy = (Math.random() - 0.5) * 4 - 1.5;
+      }
+      renderWorld();
+    }
+
+    function renderWorld() {
+      var html = '';
+      for (var i = 0; i < WORLD_CITIES.length; i++) {
+        var d = zonedTime(WORLD_CITIES[i][1]);
+        html += '<div class="clock-city"><b>' + WORLD_CITIES[i][0] + '</b><i>' + timeStrOf(d) + '</i></div>';
+      }
+      clockWorld.innerHTML = html;
+    }
+
+    function initBorder() {
+      borderParts = [];
+      for (var i = 0; i < 260; i++) {
+        borderParts.push({
+          ang: Math.random() * Math.PI * 2,
+          rad: 160 + Math.random() * 380,
+          sp: 0.0015 + Math.random() * 0.004,
+          hue: 200 + Math.random() * 55,
+          sz: 0.8 + Math.random() * 1.6,
+          orb: 0.55 + Math.random() * 0.45
+        });
+      }
+    }
+
+    function drawClouds(ctx, W, H, t) {
+      var g = ctx.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, '#050816');
+      g.addColorStop(0.5, '#071122');
+      g.addColorStop(1, '#04060c');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+      var hue = 214 + Math.sin(t / 7000) * 30;
+      for (var i = 0; i < 5; i++) {
+        var cx = W * (0.5 + 0.45 * Math.sin(t / 9000 + i * 1.7));
+        var cy = H * (0.3 + 0.24 * Math.cos(t / 11000 + i * 2.3));
+        var rx = W * (0.32 + 0.14 * Math.sin(t / 13000 + i));
+        var ry = H * (0.16 + 0.08 * Math.cos(t / 15000 + i * 1.3));
+        var rg = ctx.createRadialGradient(cx, cy, 0, cx, cy, rx);
+        rg.addColorStop(0, 'hsla(' + hue + ', 85%, 55%, 0.14)');
+        rg.addColorStop(0.55, 'hsla(' + (hue + 18) + ', 80%, 38%, 0.06)');
+        rg.addColorStop(1, 'transparent');
+        ctx.fillStyle = rg;
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.scale(1, ry / rx);
+        ctx.translate(-cx, -cy);
+        ctx.beginPath();
+        ctx.arc(cx, cy, rx, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+      var vg = ctx.createRadialGradient(W / 2, H * 0.42, 60, W / 2, H * 0.42, W * 0.7);
+      vg.addColorStop(0, 'rgba(0,0,0,0)');
+      vg.addColorStop(1, 'rgba(0,0,10,0.55)');
+      ctx.fillStyle = vg;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    function drawBlackhole(ctx, W, H, t) {
+      var cx = W / 2, cy = H / 2 + 4;
+      var core = ctx.createRadialGradient(cx, cy, 0, cx, cy, 66);
+      core.addColorStop(0, '#000');
+      core.addColorStop(0.5, '#02040c');
+      core.addColorStop(0.72, 'rgba(16, 48, 140, 0.35)');
+      core.addColorStop(1, 'transparent');
+      ctx.fillStyle = core;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 66, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(96, 160, 255, 0.3)';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.arc(cx, cy, 72 + Math.sin(t / 600) * 4, 0, Math.PI * 2); ctx.stroke();
+      ctx.strokeStyle = 'rgba(60, 110, 220, 0.22)';
+      ctx.beginPath(); ctx.arc(cx, cy, 54 + Math.cos(t / 700) * 3, 0, Math.PI * 2); ctx.stroke();
+      for (var i = 0; i < borderParts.length; i++) {
+        var p = borderParts[i];
+        p.ang += p.sp;
+        p.rad *= 0.9985;
+        if (p.rad < 48) { p.rad = 160 + Math.random() * 360; p.ang = Math.random() * Math.PI * 2; }
+        var px = cx + Math.cos(p.ang) * p.rad;
+        var py = cy + Math.sin(p.ang) * p.rad * p.orb;
+        var alpha = Math.max(0.12, 0.85 - p.rad / 560);
+        ctx.fillStyle = 'hsla(' + p.hue + ', 92%, ' + (62 + Math.sin(t / 300 + p.ang * 3) * 22) + '%, ' + alpha + ')';
+        ctx.beginPath();
+        ctx.arc(px, py, p.sz, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function easeInOut(t) {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    function drawParticleGlow(ctx, x, y, sz, hue, alpha) {
+      var g = ctx.createRadialGradient(x, y, 0, x, y, sz * 3.4);
+      g.addColorStop(0, 'hsla(' + hue + ', 100%, 88%, ' + alpha + ')');
+      g.addColorStop(0.45, 'hsla(' + hue + ', 96%, 70%, ' + (alpha * 0.5) + ')');
+      g.addColorStop(1, 'transparent');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(x, y, sz * 3.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function clockFrame(now) {
+      var ctx = clockCtx;
+      var W = clockCanvas.width, H = clockCanvas.height;
+      drawClouds(ctx, W, H, now);
+      drawBlackhole(ctx, W, H, now);
+      // 数字底光（保证可读）：双层发光数字，粒子在其上层飞动
+      ctx.font = '700 ' + Math.round(7.2 * CELL) + 'px "JetBrains Mono", Consolas, monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(70, 140, 255, 1)';
+      ctx.shadowBlur = 46;
+      ctx.fillStyle = 'rgba(112, 178, 255, 0.5)';
+      ctx.fillText(timeStrOf(zonedTime(clockOffset)), CX0 + 27 * CELL, CY0 + 3.5 * CELL + 2);
+      ctx.shadowBlur = 16;
+      ctx.fillStyle = 'rgba(168, 208, 255, 0.3)';
+      ctx.fillText(timeStrOf(zonedTime(clockOffset)), CX0 + 27 * CELL, CY0 + 3.5 * CELL + 2);
+      ctx.shadowBlur = 0;
+      for (var i = 0; i < particles.length; i++) {
+        var p = particles[i];
+        if (!p.alive) {
+          p.x += p.vx; p.y += p.vy;
+          p.life -= 0.022;
+          if (p.life > 0) drawParticleGlow(ctx, p.x, p.y, Math.max(0.3, p.life) * p.sz, p.hue, Math.max(0.05, p.life * 0.7));
+          continue;
+        }
+        var t = (now - p.b) / 900;
+        if (t > 1) t = 1;
+        var e = easeInOut(t);
+        // 温和散开重组：幅度 10px，方向固定，不随帧抖动
+        var spread = Math.sin(t * Math.PI) * 10;
+        var nx = p.fx + (p.tx - p.fx) * e + spread * Math.sin(p.seed * 12.9898);
+        var ny = p.fy + (p.ty - p.fy) * e + spread * Math.cos(p.seed * 78.233);
+        p.x = nx; p.y = ny;
+        var sz = p.sz * (1 - 0.3 * t);
+        drawParticleGlow(ctx, nx, ny, sz, p.hue, 1);
+        ctx.fillStyle = 'rgba(246, 251, 255, 1)';
+        ctx.beginPath();
+        ctx.arc(nx, ny, Math.max(1.4, sz * 0.85), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      if (now - lastTick >= 1000) {
+        lastTick = now;
+        clockTick();
+      }
+    }
+
+    function clockStart() {
+      if (clockRun) return;
+      clockRun = true;
+      clockGeom();
+      if (!borderParts.length) initBorder();
+      particles = [];
+      lastTick = -99999;
+      if (location.protocol === 'https:' && navigator.wakeLock && navigator.wakeLock.request) {
+        navigator.wakeLock.request('screen').then(function (wl) {
+          wakeLock = wl;
+          clockWakeEl.textContent = '屏幕常亮已开启';
+        }).catch(function () {
+          clockWakeEl.textContent = '屏幕常亮不可用（需 HTTPS 或授权）';
+        });
+      } else if (location.protocol === 'file:') {
+        clockWakeEl.textContent = '屏幕常亮：发布到 HTTPS 后自动生效';
+      } else {
+        clockWakeEl.textContent = '浏览器不支持屏幕常亮';
+      }
+      clockTick();
+      cancelAnimationFrame(clockAnim);
+      function loop(ts) {
+        clockFrame(ts);
+        clockAnim = requestAnimationFrame(loop);
+      }
+      clockAnim = requestAnimationFrame(loop);
+    }
+
+    function clockStop() {
+      clockRun = false;
+      if (clockAnim) cancelAnimationFrame(clockAnim);
+      clockAnim = null;
+      if (wakeLock) {
+        try { wakeLock.release(); } catch (e) {}
+        wakeLock = null;
+      }
+      clockCtx.clearRect(0, 0, clockCanvas.width, clockCanvas.height);
+      clockWorld.innerHTML = '';
+    }
+
+    ZONES.forEach(function (z) {
+      var o = document.createElement('option');
+      o.value = z[0];
+      o.textContent = z[1];
+      clockZone.appendChild(o);
+    });
+    clockZone.value = '480';
+    clockZone.addEventListener('change', function () {
+      clockOffset = parseInt(clockZone.value, 10) || 0;
+      particles = [];
+      clockTick();
+    });
+
+    el('clock-full').addEventListener('click', function () {
+      if (document.fullscreenElement) {
+        if (document.exitFullscreen) document.exitFullscreen();
+      } else {
+        var elm = document.documentElement;
+        if (elm.requestFullscreen) elm.requestFullscreen();
+        else if (elm.webkitRequestFullscreen) elm.webkitRequestFullscreen();
+      }
     });
   })();
 </script>
