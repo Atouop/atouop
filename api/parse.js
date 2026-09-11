@@ -75,8 +75,9 @@ async function verify(surl, pwd) {
 }
 
 // 3. 列出分享目录（xpan 客户端接口，规避网页接口对数据中心 IP 的风控）
-async function listFiles(shareid, uk, dir, surl) {
+async function listFiles(shareid, uk, dir, surl, pwd) {
   let url = 'https://pan.baidu.com/rest/2.0/xpan/share?method=list&shorturl=' + encodeURIComponent(surl) +
+    '&pwd=' + encodeURIComponent(pwd || '') +
     '&page=1&num=100&root=' + (dir ? '0' : '1');
   if (dir) url += '&dir=' + encodeURIComponent(dir);
   const j = await jfetch(url, {
@@ -90,11 +91,11 @@ async function listFiles(shareid, uk, dir, surl) {
 }
 
 // 递归收集所有文件
-async function collectFiles(shareid, uk, dir, depth, out, surl) {
-  const items = await listFiles(shareid, uk, dir, surl);
+async function collectFiles(shareid, uk, dir, depth, out, surl, pwd) {
+  const items = await listFiles(shareid, uk, dir, surl, pwd);
   for (const it of items) {
     if (String(it.isdir) === '1') {
-      if (depth < 6) await collectFiles(shareid, uk, it.path, depth + 1, out, surl);
+      if (depth < 6) await collectFiles(shareid, uk, it.path, depth + 1, out, surl, pwd);
     } else {
       out.push({ fs_id: it.fs_id, name: it.server_filename, size: it.size, path: it.path });
     }
@@ -154,7 +155,7 @@ export default async function handler(req, res) {
   try {
     const sess = await initShare(surl);
     await verify(surl, pwd);
-    const files = await collectFiles(sess.shareid, sess.uk, dir, 0, [], surl);
+    const files = await collectFiles(sess.shareid, sess.uk, dir, 0, [], surl, pwd);
     if (!files.length) return res.json({ ok: true, files: [], note: '分享中没有可下载的文件' });
     if (files.length > 50) files.length = 50; // 单次最多 50 个文件
 
