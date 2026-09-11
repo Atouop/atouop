@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atouop — 控制台</title>
+<meta name="description" content="Atouop 个人主页的控制台：管理弹幕、待办、倒计时、绩点、像素画与随机选项。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20fill='%2305070c'/%3E%3Ctext%20x='32'%20y='44'%20font-family='monospace'%20font-size='36'%20font-weight='700'%20fill='%233d7bff'%20text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #05070c;
+    --bg-soft: #0a1122;
+    --card: rgba(255, 255, 255, 0.03);
+    --line: rgba(120, 160, 255, 0.16);
+    --line-strong: rgba(120, 160, 255, 0.35);
+    --text: #eef3fb;
+    --muted: #8b96ab;
+    --accent: #3d7bff;
+    --accent-soft: rgba(61, 123, 255, 0.14);
+    --danger: #ef476f;
+    --ok: #06d6a0;
+    --mono: 'JetBrains Mono', Consolas, monospace;
+    --sans: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+  canvas#stars {
+    position: fixed; inset: 0;
+    width: 100%; height: 100%;
+    z-index: 0; pointer-events: none;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 0 20px 60px; }
+
+  /* 顶栏 */
+  header.top {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 20px;
+    background: rgba(5, 7, 12, 0.82);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  header.top .logo {
+    font-family: var(--mono); font-weight: 700; font-size: 1rem;
+    color: var(--text); letter-spacing: 0.06em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  header.top .logo b { color: var(--accent); }
+  header.top .sp { flex: 1; }
+  .link {
+    color: var(--muted); text-decoration: none; font-size: 0.85rem;
+    padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px;
+    transition: all 0.2s;
+  }
+  .link:hover { color: var(--text); border-color: var(--line-strong); background: var(--accent-soft); }
+
+  /* 标题区 */
+  .hero { padding: 34px 4px 8px; }
+  .hero h1 { font-size: 1.7rem; font-weight: 700; letter-spacing: 0.02em; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p { color: var(--muted); font-size: 0.9rem; margin-top: 6px; }
+
+  /* 概览统计 */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 22px 0 30px; }
+  .stat {
+    border: 1px solid var(--line); border-radius: 12px;
+    background: var(--card); padding: 14px 16px;
+  }
+  .stat b { display: block; font-family: var(--mono); font-size: 1.5rem; color: var(--accent); }
+  .stat span { font-size: 0.78rem; color: var(--muted); }
+
+  /* 模块卡片 */
+  .mod {
+    border: 1px solid var(--line); border-radius: 14px;
+    background: var(--card); padding: 20px 20px 22px;
+    margin-bottom: 20px;
+  }
+  .mod h2 {
+    font-size: 1.02rem; font-weight: 600;
+    display: flex; align-items: center; gap: 10px;
+    padding-bottom: 12px; border-bottom: 1px solid var(--line);
+    margin-bottom: 14px;
+  }
+  .mod h2 .no {
+    font-family: var(--mono); font-size: 0.72rem; color: var(--accent);
+    border: 1px solid var(--line-strong); border-radius: 6px;
+    padding: 2px 8px;
+  }
+  .mod h2 .sp { flex: 1; }
+  .empty-tip { color: var(--muted); font-size: 0.85rem; padding: 8px 2px; }
+
+  .row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .input {
+    flex: 1; min-width: 160px;
+    background: var(--bg-soft); color: var(--text);
+    border: 1px solid var(--line); border-radius: 9px;
+    padding: 9px 12px; font-size: 0.88rem; font-family: var(--sans);
+    outline: none; transition: border-color 0.2s;
+  }
+  .input:focus { border-color: var(--accent); }
+  textarea.input { min-height: 76px; resize: vertical; font-family: var(--mono); font-size: 0.82rem; }
+
+  .btn {
+    border: 1px solid var(--line-strong); background: transparent; color: var(--text);
+    border-radius: 9px; padding: 9px 16px; font-size: 0.85rem; cursor: pointer;
+    transition: all 0.2s; font-family: var(--sans);
+  }
+  .btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { filter: brightness(1.12); }
+  .btn.danger { border-color: rgba(239, 71, 111, 0.5); color: #ff9ab5; }
+  .btn.danger:hover { background: rgba(239, 71, 111, 0.14); border-color: var(--danger); }
+  .btn.sm { padding: 5px 11px; font-size: 0.78rem; }
+
+  /* 列表 */
+  ul.list { list-style: none; }
+  ul.list li {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 4px; border-bottom: 1px dashed rgba(120, 160, 255, 0.1);
+    font-size: 0.9rem;
+  }
+  ul.list li:last-child { border-bottom: none; }
+  ul.list li.done .t { text-decoration: line-through; color: var(--muted); }
+  ul.list li .t { flex: 1; word-break: break-all; }
+  ul.list li time { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
+  .chk { width: 17px; height: 17px; accent-color: var(--accent); cursor: pointer; }
+
+  /* 表格 */
+  table.tbl { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  table.tbl th, table.tbl td { text-align: left; padding: 8px 6px; border-bottom: 1px solid rgba(120, 160, 255, 0.1); }
+  table.tbl th { color: var(--muted); font-weight: 500; font-size: 0.78rem; letter-spacing: 0.05em; }
+  table.tbl td.num { font-family: var(--mono); }
+
+  /* 像素画预览 */
+  .px-wrap { display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap; }
+  .px-canvas {
+    width: 256px; height: 256px;
+    image-rendering: pixelated;
+    border: 1px solid var(--line-strong); border-radius: 8px;
+    background: #070a14;
+  }
+  .px-meta { font-size: 0.82rem; color: var(--muted); line-height: 2; }
+
+  /* 倒计时大数字 */
+  .cd-big {
+    font-family: var(--mono); font-size: 1.9rem; font-weight: 700; color: var(--text);
+    letter-spacing: 0.03em; margin: 4px 0 2px;
+  }
+  .cd-big em { font-style: normal; color: var(--accent); }
+  .cd-name { color: var(--muted); font-size: 0.88rem; margin-bottom: 12px; }
+
+  footer { color: var(--muted); font-size: 0.75rem; text-align: center; padding: 30px 0 10px; font-family: var(--mono); letter-spacing: 0.08em; }
+  footer a { color: var(--muted); }
+  footer a:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+
+<header class="top">
+  <div class="logo">ATOUOP<b>·</b>CONSOLE</div>
+  <span class="sp"></span>
+  <a class="link" href="index.html" id="link-home">← 回到主页</a>
+  <a class="link" href="#" id="link-theme" title="切换深浅色主题（同步主页）">主题</a>
+</header>
+
+<div class="wrap">
+  <div class="hero">
+    <h1>Atouop <em>控制台</em></h1>
+    <p>管理个人主页的工具数据：弹幕、待办、倒计时、绩点、像素画、随机选项。所有修改即时同步到主页。</p>
+  </div>
+
+  <!-- 概览 -->
+  <div class="stats" id="stats">
+    <div class="stat"><b id="st-todo">0</b><span>待办（完成率 0%）</span></div>
+    <div class="stat"><b id="st-dama">0</b><span>弹幕条数</span></div>
+    <div class="stat"><b id="st-cd">—</b><span>倒计时目标</span></div>
+    <div class="stat"><b id="st-gpa">—</b><span>GPA / 加权分</span></div>
+    <div class="stat"><b id="st-px">0</b><span>像素画格子</span></div>
+  </div>
+
+  <!-- 弹幕 -->
+  <div class="mod" id="m-dama">
+    <h2><span class="no">01</span>弹幕墙<span class="sp"></span><button class="btn danger sm" id="dama-clear" type="button">清空全部</button></h2>
+    <div class="row">
+      <input class="input" id="dama-input" type="text" placeholder="新弹幕内容（同步到主页弹幕墙）" maxlength="40">
+      <button class="btn primary" id="dama-add" type="button">添加</button>
+    </div>
+    <ul class="list" id="dama-list"></ul>
+  </div>
+
+  <!-- 待办 -->
+  <div class="mod" id="m-todo">
+    <h2><span class="no">02</span>待办清单<span class="sp"></span><button class="btn danger sm" id="todo-clear" type="button">清空已勾选</button></h2>
+    <div class="row">
+      <input class="input" id="todo-input" type="text" placeholder="新待办（同步到主页待办清单）" maxlength="60">
+      <button class="btn primary" id="todo-add" type="button">添加</button>
+    </div>
+    <ul class="list" id="todo-list"></ul>
+  </div>
+
+  <!-- 倒计时 -->
+  <div class="mod" id="m-cd">
+    <h2><span class="no">03</span>倒计时目标</h2>
+    <div id="cd-empty" class="empty-tip">主页还没有设置倒计时目标。</div>
+    <div id="cd-body" hidden>
+      <div class="cd-big" id="cd-clock">-- 天 --:--:--</div>
+      <div class="cd-name" id="cd-label"></div>
+      <div class="row">
+        <input class="input" id="cd-name" type="text" placeholder="目标名称" maxlength="20">
+        <input class="input" id="cd-date" type="datetime-local">
+        <button class="btn primary" id="cd-save" type="button">保存修改</button>
+        <button class="btn danger" id="cd-del" type="button">删除目标</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 绩点 -->
+  <div class="mod" id="m-gpa">
+    <h2><span class="no">04</span>绩点计算器数据<span class="sp"></span><button class="btn danger sm" id="gpa-clear" type="button">清空全部</button></h2>
+    <div id="gpa-empty" class="empty-tip">主页还没有录入课程。</div>
+    <div id="gpa-body" hidden>
+      <table class="tbl" id="gpa-tbl">
+        <thead><tr><th>课程</th><th>学分</th><th>分数</th><th></th></tr></thead>
+        <tbody id="gpa-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 像素画 -->
+  <div class="mod" id="m-px">
+    <h2><span class="no">05</span>像素涂鸦作品<span class="sp"></span><button class="btn danger sm" id="px-clear" type="button">清空画布</button></h2>
+    <div class="px-wrap">
+      <canvas class="px-canvas" id="px-canvas" width="256" height="256"></canvas>
+      <div class="px-meta" id="px-meta">还没有像素画作品。</div>
+    </div>
+  </div>
+
+  <!-- 随机选项 -->
+  <div class="mod" id="m-rand">
+    <h2><span class="no">06</span>随机决定器选项</h2>
+    <div class="row">
+      <textarea class="input" id="rand-options" placeholder="每行一个选项，与主页随机决定器同步"></textarea>
+    </div>
+    <div class="row">
+      <button class="btn primary" id="rand-save" type="button">保存选项</button>
+    </div>
+  </div>
+
+  <footer>ATOUOP · CONSOLE — 数据保存在本浏览器，与 <a href="index.html">主页</a> 同步</footer>
+</div>
+
+<script>
+  // ===== 工具函数 =====
+  function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function load(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } }
+  function el(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+
+  // ===== 主题（与主页 atouop:theme 同步）=====
+  var theme = load('atouop:theme', 'dark');
+  function applyTheme() {
+    document.documentElement.classList.toggle('light', theme === 'light');
+  }
+  el('link-theme').addEventListener('click', function (e) {
+    e.preventDefault();
+    theme = theme === 'light' ? 'dark' : 'light';
+    store('atouop:theme', theme);
+    applyTheme();
+  });
+
+  // ===== 背景星星 =====
+  (function () {
+    var cv = el('stars');
+    var ctx = cv.getContext('2d');
+    var stars = [];
+    function resize() {
+      cv.width = window.innerWidth; cv.height = window.innerHeight;
+      var n = Math.floor(cv.width * cv.height / 9000);
+      stars = [];
+      for (var i = 0; i < n; i++) {
+        stars.push({ x: Math.random(), y: Math.random(), r: Math.random() * 1.4 + 0.3, a: Math.random() * Math.PI * 2, s: 0.005 + Math.random() * 0.01, tw: 0.3 + Math.random() * 0.7 });
+      }
+    }
+    function frame() {
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      var now = performance.now();
+      for (var i = 0; i < stars.length; i++) {
+        var st = stars[i];
+        var alpha = 0.25 + 0.75 * (0.5 + 0.5 * Math.sin(now * st.s + st.a)) * st.tw;
+        ctx.fillStyle = 'rgba(150, 195, 255, ' + alpha.toFixed(3) + ')';
+        ctx.beginPath();
+        ctx.arc(st.x * cv.width, st.y * cv.height, st.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      requestAnimationFrame(frame);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    requestAnimationFrame(frame);
+  })();
+
+  // ===== 概览 =====
+  function renderStats() {
+    var todos = load('atouop:todos', []);
+    var done = todos.filter(function (t) { return t.done; }).length;
+    el('st-todo').textContent = todos.length + ' 项';
+    el('st-todo').nextElementSibling.textContent = '待办 · 完成 ' + done + '/' + todos.length + (todos.length ? '（' + Math.round(done / todos.length * 100) + '%）' : '');
+    el('st-dama').textContent = load('atouop:danmaku', []).length + ' 条';
+    var cd = load('atouop:cd', null);
+    el('st-cd').textContent = cd ? cd.name.slice(0, 6) : '未设置';
+    var gpa = load('atouop:gpa', []);
+    if (Array.isArray(gpa) && gpa.length) {
+      var credits = 0, sum = 0, sumc = 0;
+      for (var i = 0; i < gpa.length; i++) {
+        var c = parseFloat(gpa[i].credit) || 0;
+        var s = parseFloat(gpa[i].score) || 0;
+        if (c > 0 && s > 0) { credits += c; sum += c * s; sumc += c; }
+      }
+      var wavg = sumc ? (sum / sumc).toFixed(1) : '—';
+      var g = sumc ? (sum / sumc / 20 - 1).toFixed(2) : '—';
+      el('st-gpa').textContent = g + ' / ' + wavg;
+    } else {
+      el('st-gpa').textContent = '未录入';
+    }
+    var grid = load('atouop:pixels', []);
+    var filled = Array.isArray(grid) ? grid.filter(function (v) { return v; }).length : 0;
+    el('st-px').textContent = filled + ' 格';
+  }
+
+  // ===== 弹幕 =====
+  var damaList = load('atouop:danmaku', []);
+  if (!Array.isArray(damaList)) damaList = [];
+  function damaRender() {
+    var box = el('dama-list');
+    if (!damaList.length) { box.innerHTML = '<li class="t">还没有弹幕。</li>'; return; }
+    box.innerHTML = '';
+    for (var i = damaList.length - 1; i >= 0; i--) {
+      var li = document.createElement('li');
+      li.innerHTML = '<span class="t">' + esc(damaList[i]) + '</span><button class="btn danger sm" data-i="' + i + '" type="button">删除</button>';
+      box.appendChild(li);
+    }
+    box.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        damaList.splice(parseInt(b.getAttribute('data-i'), 10), 1);
+        store('atouop:danmaku', damaList);
+        damaRender(); renderStats();
+      });
+    });
+  }
+  el('dama-add').addEventListener('click', function () {
+    var v = el('dama-input').value.trim();
+    if (!v) return;
+    damaList.push(v);
+    el('dama-input').value = '';
+    store('atouop:danmaku', damaList);
+    damaRender(); renderStats();
+  });
+  el('dama-input').addEventListener('keydown', function (e) { if (e.key === 'Enter') el('dama-add').click(); });
+  el('dama-clear').addEventListener('click', function () {
+    if (!damaList.length) return;
+    if (!confirm('确定清空全部弹幕？')) return;
+    damaList = [];
+    store('atouop:danmaku', damaList);
+    damaRender(); renderStats();
+  });
+
+  // ===== 待办 =====
+  var todos = load('atouop:todos', []);
+  if (!Array.isArray(todos)) todos = [];
+  function todoRender() {
+    var box = el('todo-list');
+    if (!todos.length) { box.innerHTML = '<li class="t">还没有待办。</li>'; return; }
+    box.innerHTML = '';
+    todos.forEach(function (t, i) {
+      var li = document.createElement('li');
+      li.className = t.done ? 'done' : '';
+      var cb = document.createElement('input');
+      cb.type = 'checkbox'; cb.className = 'chk'; cb.checked = !!t.done;
+      cb.addEventListener('change', function () {
+        t.done = cb.checked;
+        li.className = t.done ? 'done' : '';
+        store('atouop:todos', todos);
+        renderStats();
+      });
+      var span = document.createElement('span');
+      span.className = 't';
+      span.textContent = t.text;
+      var btn = document.createElement('button');
+      btn.className = 'btn danger sm'; btn.type = 'button'; btn.textContent = '删除';
+      btn.addEventListener('click', function () {
+        todos.splice(i, 1);
+        store('atouop:todos', todos);
+        todoRender(); renderStats();
+      });
+      li.appendChild(cb); li.appendChild(span); li.appendChild(btn);
+      box.appendChild(li);
+    });
+  }
+  el('todo-add').addEventListener('click', function () {
+    var v = el('todo-input').value.trim();
+    if (!v) return;
+    todos.push({ text: v, done: false });
+    el('todo-input').value = '';
+    store('atouop:todos', todos);
+    todoRender(); renderStats();
+  });
+  el('todo-input').addEventListener('keydown', function (e) { if (e.key === 'Enter') el('todo-add').click(); });
+  el('todo-clear').addEventListener('click', function () {
+    var n = todos.length;
+    todos = todos.filter(function (t) { return !t.done; });
+    if (todos.length === n) return;
+    store('atouop:todos', todos);
+    todoRender(); renderStats();
+  });
+
+  // ===== 倒计时 =====
+  var cdTimer = null;
+  function cdRender() {
+    var cd = load('atouop:cd', null);
+    var empty = el('cd-empty'), body = el('cd-body');
+    if (!cd) {
+      empty.hidden = false; body.hidden = true;
+      return;
+    }
+    empty.hidden = true; body.hidden = false;
+    el('cd-label').textContent = '「' + cd.name + '」还剩';
+    if (el('cd-name').value === '') el('cd-name').value = cd.name;
+    if (el('cd-date').value === '') {
+      var d = new Date(cd.ts);
+      el('cd-date').value = d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + 'T' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+    }
+    function tick() {
+      var diff = cd.ts - Date.now();
+      if (diff <= 0) {
+        el('cd-clock').innerHTML = '<em>0</em> 天 00:00:00';
+        return;
+      }
+      var s = Math.floor(diff / 1000);
+      var d = Math.floor(s / 86400);
+      var h = Math.floor(s % 86400 / 3600);
+      var m = Math.floor(s % 3600 / 60);
+      var sec = s % 60;
+      el('cd-clock').innerHTML = '<em>' + d + '</em> 天 ' + pad2(h) + ':' + pad2(m) + ':' + pad2(sec);
+    }
+    tick();
+    clearInterval(cdTimer);
+    cdTimer = setInterval(tick, 1000);
+  }
+  el('cd-save').addEventListener('click', function () {
+    var name = el('cd-name').value.trim();
+    var dt = el('cd-date').value;
+    if (!name || !dt) { alert('名称和日期都要填。'); return; }
+    store('atouop:cd', { name: name, ts: new Date(dt).getTime() });
+    cdRender(); renderStats();
+  });
+  el('cd-del').addEventListener('click', function () {
+    if (!confirm('删除倒计时目标？')) return;
+    localStorage.removeItem('atouop:cd');
+    el('cd-name').value = ''; el('cd-date').value = '';
+    cdRender(); renderStats();
+  });
+
+  // ===== 绩点 =====
+  var gpaRows = load('atouop:gpa', []);
+  if (!Array.isArray(gpaRows)) gpaRows = [];
+  function gpaRender() {
+    var empty = el('gpa-empty'), body = el('gpa-body');
+    if (!gpaRows.length) { empty.hidden = false; body.hidden = true; return; }
+    empty.hidden = true; body.hidden = false;
+    var tb = el('gpa-tbody');
+    tb.innerHTML = '';
+    gpaRows.forEach(function (r, i) {
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + esc(r.name) + '</td><td class="num">' + esc(r.credit) + '</td><td class="num">' + esc(r.score) + '</td>';
+      var td = document.createElement('td');
+      var btn = document.createElement('button');
+      btn.className = 'btn danger sm'; btn.type = 'button'; btn.textContent = '删除';
+      btn.addEventListener('click', function () {
+        gpaRows.splice(i, 1);
+        store('atouop:gpa', gpaRows);
+        gpaRender(); renderStats();
+      });
+      td.appendChild(btn);
+      tr.appendChild(td);
+      tb.appendChild(tr);
+    });
+  }
+  el('gpa-clear').addEventListener('click', function () {
+    if (!gpaRows.length) return;
+    if (!confirm('清空全部绩点课程？')) return;
+    gpaRows = [];
+    store('atouop:gpa', gpaRows);
+    gpaRender(); renderStats();
+  });
+
+  // ===== 像素画 =====
+  function pxRender() {
+    var grid = load('atouop:pixels', []);
+    var cv = el('px-canvas');
+    var ctx = cv.getContext('2d');
+    ctx.clearRect(0, 0, 256, 256);
+    var filled = 0;
+    if (Array.isArray(grid) && grid.length === 1024) {
+      var cell = 256 / 32;
+      for (var i = 0; i < 1024; i++) {
+        if (grid[i]) {
+          ctx.fillStyle = grid[i];
+          ctx.fillRect((i % 32) * cell, Math.floor(i / 32) * cell, cell, cell);
+          filled++;
+        }
+      }
+    }
+    el('px-meta').textContent = filled ? '32×32 画布 · 已涂 ' + filled + ' 格 · 与主页像素涂鸦同步' : '还没有像素画作品。在主页画一笔就会出现在这里。';
+  }
+  el('px-clear').addEventListener('click', function () {
+    if (!confirm('清空像素画布？')) return;
+    store('atouop:pixels', new Array(1024).fill(''));
+    pxRender(); renderStats();
+  });
+
+  // ===== 随机选项 =====
+  function randRender() {
+    var v = load('atouop:choices', '');
+    if (el('rand-options').value === '') el('rand-options').value = v;
+  }
+  el('rand-save').addEventListener('click', function () {
+    store('atouop:choices', el('rand-options').value);
+    var old = el('rand-save').textContent;
+    el('rand-save').textContent = '已保存 ✓';
+    setTimeout(function () { el('rand-save').textContent = old; }, 1200);
+  });
+
+  // ===== 启动 =====
+  applyTheme();
+  renderStats();
+  damaRender();
+  todoRender();
+  cdRender();
+  gpaRender();
+  pxRender();
+  randRender();
+  setInterval(renderStats, 2000); // 倒计时/主页其他标签页改动可自动刷新统计
+</script>
+</body>
+</html>
