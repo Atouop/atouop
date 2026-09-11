@@ -1,67 +1,96 @@
 // 网盘直链解析 API（百度网盘）
 // Vercel Serverless Function · 需要环境变量 BDUSS（你的百度网盘登录凭证）
-// 流程：验证分享 → 列出文件（含子目录递归）→ 转存到账号 /atouop_tmp → 取官方 dlink 直链
-const UA = 'netdisk;12.24.6;piano;android-android;16;JSbridge4.4.0;jointBridge;1.1.0';
+// 流程：init 分享页提取 shareid/uk → verify 验证提取码（拿 BDCLND 会话 Cookie）→ 递归列文件
+//       → 转存到账号 /atouop_tmp → 取官方 dlink 直链
+const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
 const APP_ID = '250528';
 
-function cookie() {
-  return 'BDUSS=' + (process.env.BDUSS || '');
-}
-
-async function jfetch(url, opts = {}) {
-  const headers = Object.assign({
-    'User-Agent': UA,
-    'Referer': 'https://pan.baidu.com/',
-    'Cookie': cookie(),
-    'Accept': 'application/json, text/plain, */*',
-    'Origin': 'https://pan.baidu.com',
-  }, opts.headers || {});
-  const res = await fetch(url, Object.assign({ headers }, opts));
-  return res.json();
-}
+let COOKIE = process.env.BDUSS ? 'BDUSS=' + process.env.BDUSS : '';
 
 function qs(obj) {
   return Object.keys(obj).map(k => k + '=' + encodeURIComponent(obj[k])).join('&');
 }
 
-// 从分享链接提取 surl
-function extractSurl(url) {
-  const m = String(url || '').match(/s\/1[A-Za-z0-9_-]+/);
-  return m ? m[0].slice(2) : '';
+// 通用请求：自动合并 Set-Cookie 到会话
+async function jfetch(url, opts = {}) {
+  const headers = Object.assign({
+    'User-Agent': UA,
+    'Referer': 'https://pan.baidu.com/',
+    'Cookie': COOKIE,
+    'Accept': 'application/json, text/plain, */*',
+  }, opts.headers || {});
+  const res = await fetch(url, Object.assign({ headers }, opts));
+  const sc = res.headers.get('set-cookie');
+  if (sc) {
+    const parts = sc.split(/,\s*(?=[A-Za-z_]+=)/);
+    for (const p of parts) {
+      const kv = p.split(';')[0];
+      if (!kv || /^(expires|path|domain|max-age|secure|httponly|samesite)/i.test(kv)) continue;
+      const k = kv.split('=')[0].trim();
+      COOKIE = COOKIE.split(';').map(c => c.trim()).filter(c => c && c.split('=')[0] !== k).join('; ') + '; ' + kv;
+    }
+  }
+  return res.json();
 }
 
-// 1. 验证分享，换取会话
+// 从分享链接提取短码（去掉开头的 1）
+function extractSurl(url) {
+  const m = String(url || '').match(/s\/1([A-Za-z0-9_-]+)/);
+  return m ? m[1] : '';
+}
+
+// 1. 打开分享页，提取 shareid / share_uk（HTML 内嵌）
+async function initShare(surl) {
+  const url = 'https://pan.baidu.com/share/init?surl=' + encodeURIComponent(surl);
+  const res = await fetch(url, {
+    headers: {
+      'User-Agent': UA,
+      'Referer': 'https://pan.baidu.com/share/init?surl=' + encodeURIComponent(surl),
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    },
+  });
+  const t = await res.text();
+  const sid = t.match(/shareid:"(\d+)"/);
+  const su = t.match(/share_uk:"(\d+)"/);
+  if (!sid || !su) throw new Error('无法解析分享信息（链接可能已失效）');
+  return { shareid: sid[1], uk: su[1] };
+}
+
+// 2. 验证提取码，换取会话 Cookie（BDCLND）
 async function verify(surl, pwd) {
   const url = 'https://pan.baidu.com/share/verify?surl=' + encodeURIComponent(surl) +
     '&pwd=' + encodeURIComponent(pwd || '') + '&vcode=&vcode_str=';
   const j = await jfetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Referer': 'https://pan.baidu.com/share/init?surl=' + encodeURIComponent(surl),
+    },
     body: qs({ surl: surl, pwd: pwd || '', vcode: '', vcode_str: '' }),
   });
   if (j.errno !== 0) {
     const map = { '-9': '链接已失效或不存在', '-62': '提取码错误', '-12': '需要验证码（分享被风控）' };
     throw new Error(map[j.errno] || ('验证失败（errno=' + j.errno + '）'));
   }
-  return { shareid: j.shareid, uk: j.uk, sekey: j.sekey, randsk: j.randsk };
 }
 
-// 2. 列出分享目录
-async function listFiles(shareid, uk, randsk, dir) {
+// 3. 列出分享目录
+async function listFiles(shareid, uk, dir, surl) {
+  const randsk = (COOKIE.match(/BDCLND=([^;]+)/) || [])[1] || '';
   const url = 'https://pan.baidu.com/share/list?shareid=' + shareid + '&uk=' + uk +
-    '&randsk=' + encodeURIComponent(randsk || '') + '&root=' + (dir ? '0' : '1') +
+    '&randsk=' + encodeURIComponent(randsk) + '&root=' + (dir ? '0' : '1') +
     '&dir=' + encodeURIComponent(dir || '');
-  const j = await jfetch(url);
+  const j = await jfetch(url, { headers: { 'Referer': 'https://pan.baidu.com/share/init?surl=' + encodeURIComponent(surl) } });
   if (j.errno !== 0) throw new Error('列文件失败（errno=' + j.errno + '）');
   return j.list || [];
 }
 
 // 递归收集所有文件
-async function collectFiles(shareid, uk, randsk, dir, depth, out) {
-  const items = await listFiles(shareid, uk, randsk, dir);
+async function collectFiles(shareid, uk, dir, depth, out, surl) {
+  const items = await listFiles(shareid, uk, dir, surl);
   for (const it of items) {
-    if (it.isdir === 1) {
-      if (depth < 6) await collectFiles(shareid, uk, randsk, it.path, depth + 1, out);
+    if (String(it.isdir) === '1') {
+      if (depth < 6) await collectFiles(shareid, uk, it.path, depth + 1, out, surl);
     } else {
       out.push({ fs_id: it.fs_id, name: it.server_filename, size: it.size, path: it.path });
     }
@@ -69,7 +98,7 @@ async function collectFiles(shareid, uk, randsk, dir, depth, out) {
   return out;
 }
 
-// 3. 取 bdstoken
+// 4. 取 bdstoken
 async function getBdstoken() {
   const url = 'https://pan.baidu.com/api/gettemplatevariable?clienttype=0&app_id=' + APP_ID +
     '&web=1&fields=%5B%22bdstoken%22%5D';
@@ -78,20 +107,19 @@ async function getBdstoken() {
   return j.result.bdstoken;
 }
 
-// 4. 转存文件
-async function transfer(shareid, uk, sekey, fsid, bdstoken) {
+// 5. 转存文件到账号 /atouop_tmp
+async function transfer(shareid, uk, fsid, bdstoken) {
   const url = 'https://pan.baidu.com/share/transfer?shareid=' + shareid + '&from=' + uk +
-    '&sekey=' + encodeURIComponent(sekey || '') + '&fsidlist=%5B%22' + fsid +
-    '%22%5D&path=%2Fatouop_tmp&ondup=newcopy&bdstoken=' + bdstoken;
+    '&fsidlist=%5B%22' + fsid + '%22%5D&path=%2Fatouop_tmp&ondup=newcopy&bdstoken=' + bdstoken;
   const j = await jfetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: qs({ shareid: shareid, from: uk, sekey: sekey || '', fsidlist: '["' + fsid + '"]', path: '/atouop_tmp', ondup: 'newcopy', bdstoken: bdstoken }),
+    body: qs({ shareid: shareid, from: uk, fsidlist: '["' + fsid + '"]', path: '/atouop_tmp', ondup: 'newcopy', bdstoken: bdstoken }),
   });
   if (j.errno !== 0) throw new Error('转存失败（errno=' + j.errno + '）');
 }
 
-// 5. 取 dlink 直链
+// 6. 取 dlink 直链
 async function getDlink(fsid, bdstoken) {
   const url = 'https://pan.baidu.com/api/filemetas?dlink=1&fsids=%5B' + fsid + '%5D&bdstoken=' + bdstoken;
   const j = await jfetch(url);
@@ -115,12 +143,14 @@ export default async function handler(req, res) {
 
   const url = req.query.url || '';
   const pwd = req.query.pwd || '';
+  const dir = req.query.dir || '';
   const surl = extractSurl(url);
   if (!surl) return res.status(400).json({ ok: false, error: '无法从链接中识别分享码' });
 
   try {
-    const sess = await verify(surl, pwd);
-    const files = await collectFiles(sess.shareid, sess.uk, sess.randsk, '', 0, []);
+    const sess = await initShare(surl);
+    await verify(surl, pwd);
+    const files = await collectFiles(sess.shareid, sess.uk, dir, 0, [], surl);
     if (!files.length) return res.json({ ok: true, files: [], note: '分享中没有可下载的文件' });
     if (files.length > 50) files.length = 50; // 单次最多 50 个文件
 
@@ -128,7 +158,7 @@ export default async function handler(req, res) {
     const results = [];
     for (const f of files) {
       try {
-        await transfer(sess.shareid, sess.uk, sess.sekey, f.fs_id, bdstoken);
+        await transfer(sess.shareid, sess.uk, f.fs_id, bdstoken);
         const meta = await getDlink(f.fs_id, bdstoken);
         results.push({ name: f.name, size: f.size, sizeText: fmtSize(f.size), dlink: meta.dlink || '', path: f.path });
       } catch (e) {

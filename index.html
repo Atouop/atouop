@@ -1630,6 +1630,9 @@
         </div>
         <div class="tool-row">
           <input class="input" id="pan-code" type="text" placeholder="提取码（可选）" maxlength="8">
+          <input class="input grow" id="pan-dir" type="text" placeholder="子目录（可选，如 /adob/1.Win电脑的）" maxlength="300">
+        </div>
+        <div class="tool-row">
           <button class="btn btn-ghost btn-sm" id="pan-copy" type="button">复制链接</button>
           <button class="btn btn-primary btn-sm" id="pan-parse" type="button">一键取直链</button>
           <button class="btn btn-ghost btn-sm" id="pan-open" type="button">打开解析页</button>
@@ -2766,7 +2769,7 @@
       panResult.classList.remove('final');
       var btn = this;
       btn.disabled = true;
-      fetch('/api/parse?url=' + encodeURIComponent(raw) + '&pwd=' + encodeURIComponent(panCode.value))
+      fetch('/api/parse?url=' + encodeURIComponent(raw) + '&pwd=' + encodeURIComponent(panCode.value) + '&dir=' + encodeURIComponent(el('pan-dir').value.trim()))
         .then(function (r) { return r.json(); })
         .then(function (j) {
           btn.disabled = false;
@@ -2783,6 +2786,7 @@
     el('pan-clear').addEventListener('click', function () {
       panLink.value = '';
       panCode.value = '';
+      el('pan-dir').value = '';
       panResult.textContent = '粘贴链接后自动识别平台';
       panResult.classList.remove('final');
       panPlat.textContent = '';
