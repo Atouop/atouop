@@ -4,14 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Atouop — 控制台</title>
-<meta name="description" content="Atouop 个人主页的控制台：管理全部 9 个工具的数据，所有修改即时同步到主页。">
+<meta name="description" content="Atouop 个人主页的控制台：管理弹幕、待办、倒计时、绩点、像素画与随机选项。">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20fill='%2305070c'/%3E%3Ctext%20x='32'%20y='44'%20font-family='monospace'%20font-size='36'%20font-weight='700'%20fill='%233d7bff'%20text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E">
 <style>
   :root {
     --bg: #05070c;
     --bg-soft: #0a1122;
     --card: rgba(255, 255, 255, 0.03);
-    --header-bg: rgba(5, 7, 12, 0.82);
     --line: rgba(120, 160, 255, 0.16);
     --line-strong: rgba(120, 160, 255, 0.35);
     --text: #eef3fb;
@@ -20,24 +19,8 @@
     --accent-soft: rgba(61, 123, 255, 0.14);
     --danger: #ef476f;
     --ok: #06d6a0;
-    --star-rgb: 150, 195, 255;
     --mono: 'JetBrains Mono', Consolas, monospace;
     --sans: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  }
-  html.light {
-    --bg: #f3f6fc;
-    --bg-soft: #ffffff;
-    --card: rgba(20, 45, 90, 0.035);
-    --header-bg: rgba(243, 246, 252, 0.86);
-    --line: rgba(20, 45, 90, 0.14);
-    --line-strong: rgba(20, 45, 90, 0.28);
-    --text: #0b1526;
-    --muted: #5a6a85;
-    --accent: #2f6bff;
-    --accent-soft: rgba(47, 107, 255, 0.1);
-    --danger: #e0325c;
-    --ok: #05a87f;
-    --star-rgb: 70, 110, 190;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
@@ -60,7 +43,7 @@
     position: sticky; top: 0; z-index: 10;
     display: flex; align-items: center; gap: 14px;
     padding: 14px 20px;
-    background: var(--header-bg);
+    background: rgba(5, 7, 12, 0.82);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--line);
   }
@@ -85,13 +68,13 @@
   .hero p { color: var(--muted); font-size: 0.9rem; margin-top: 6px; }
 
   /* 概览统计 */
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: 12px; margin: 22px 0 30px; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 22px 0 30px; }
   .stat {
     border: 1px solid var(--line); border-radius: 12px;
     background: var(--card); padding: 14px 16px;
   }
-  .stat b { display: block; font-family: var(--mono); font-size: 1.35rem; color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .stat span { font-size: 0.76rem; color: var(--muted); }
+  .stat b { display: block; font-family: var(--mono); font-size: 1.5rem; color: var(--accent); }
+  .stat span { font-size: 0.78rem; color: var(--muted); }
 
   /* 模块卡片 */
   .mod {
@@ -112,20 +95,16 @@
   }
   .mod h2 .sp { flex: 1; }
   .empty-tip { color: var(--muted); font-size: 0.85rem; padding: 8px 2px; }
-  .badge { font-size: 0.74rem; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--muted); }
-  .badge.on { color: var(--ok); border-color: rgba(6, 214, 160, 0.5); }
 
   .row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
-  .row:last-child { margin-bottom: 0; }
   .input {
-    flex: 1; min-width: 140px;
+    flex: 1; min-width: 160px;
     background: var(--bg-soft); color: var(--text);
     border: 1px solid var(--line); border-radius: 9px;
     padding: 9px 12px; font-size: 0.88rem; font-family: var(--sans);
     outline: none; transition: border-color 0.2s;
   }
   .input:focus { border-color: var(--accent); }
-  select.input { cursor: pointer; }
   textarea.input { min-height: 76px; resize: vertical; font-family: var(--mono); font-size: 0.82rem; }
 
   .btn {
@@ -136,7 +115,7 @@
   .btn:hover { background: var(--accent-soft); border-color: var(--accent); }
   .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
   .btn.primary:hover { filter: brightness(1.12); }
-  .btn.danger { border-color: rgba(239, 71, 111, 0.5); color: var(--danger); }
+  .btn.danger { border-color: rgba(239, 71, 111, 0.5); color: #ff9ab5; }
   .btn.danger:hover { background: rgba(239, 71, 111, 0.14); border-color: var(--danger); }
   .btn.sm { padding: 5px 11px; font-size: 0.78rem; }
 
@@ -150,7 +129,7 @@
   ul.list li:last-child { border-bottom: none; }
   ul.list li.done .t { text-decoration: line-through; color: var(--muted); }
   ul.list li .t { flex: 1; word-break: break-all; }
-  ul.list li time { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
+  ul.list li time { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
   .chk { width: 17px; height: 17px; accent-color: var(--accent); cursor: pointer; }
 
   /* 表格 */
@@ -177,19 +156,6 @@
   .cd-big em { font-style: normal; color: var(--accent); }
   .cd-name { color: var(--muted); font-size: 0.88rem; margin-bottom: 12px; }
 
-  /* 每日一句 */
-  .q-card {
-    border: 1px solid var(--line); border-radius: 12px; background: var(--card);
-    padding: 16px 18px; margin-bottom: 12px;
-  }
-  .q-card .qt { font-size: 1.02rem; line-height: 1.75; }
-  .q-card .qa { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); margin-top: 8px; }
-  .q-label { font-size: 0.76rem; color: var(--muted); letter-spacing: 0.05em; margin-bottom: 6px; }
-
-  /* 网盘历史 */
-  .pan-link { font-family: var(--mono); font-size: 0.76rem; color: var(--muted); word-break: break-all; }
-  .pan-plat { font-size: 0.8rem; color: var(--text); white-space: nowrap; }
-
   footer { color: var(--muted); font-size: 0.75rem; text-align: center; padding: 30px 0 10px; font-family: var(--mono); letter-spacing: 0.08em; }
   footer a { color: var(--muted); }
   footer a:hover { color: var(--accent); }
@@ -208,7 +174,7 @@
 <div class="wrap">
   <div class="hero">
     <h1>Atouop <em>控制台</em></h1>
-    <p>集中管理主页全部 9 个工具的数据：弹幕、待办、倒计时、绩点、像素画、随机决定器、世界时钟、每日一句、网盘助手。所有修改即时同步到主页。</p>
+    <p>管理个人主页的工具数据：弹幕、待办、倒计时、绩点、像素画、随机选项。所有修改即时同步到主页。</p>
   </div>
 
   <!-- 概览 -->
@@ -218,9 +184,6 @@
     <div class="stat"><b id="st-cd">—</b><span>倒计时目标</span></div>
     <div class="stat"><b id="st-gpa">—</b><span>GPA / 加权分</span></div>
     <div class="stat"><b id="st-px">0</b><span>像素画格子</span></div>
-    <div class="stat"><b id="st-tz">—</b><span>世界时钟时区</span></div>
-    <div class="stat"><b id="st-q">今日</b><span>每日一句置顶</span></div>
-    <div class="stat"><b id="st-pan">0</b><span>网盘解析记录</span></div>
   </div>
 
   <!-- 弹幕 -->
@@ -262,12 +225,6 @@
   <!-- 绩点 -->
   <div class="mod" id="m-gpa">
     <h2><span class="no">04</span>绩点计算器数据<span class="sp"></span><button class="btn danger sm" id="gpa-clear" type="button">清空全部</button></h2>
-    <div class="row">
-      <input class="input" id="gpa-in-name" type="text" placeholder="课程名称" maxlength="24">
-      <input class="input" id="gpa-in-credit" type="number" min="0" step="0.5" placeholder="学分" style="max-width:110px">
-      <input class="input" id="gpa-in-score" type="number" min="0" max="100" step="0.5" placeholder="分数(0-100)" style="max-width:130px">
-      <button class="btn primary" id="gpa-add" type="button">添加课程</button>
-    </div>
     <div id="gpa-empty" class="empty-tip">主页还没有录入课程。</div>
     <div id="gpa-body" hidden>
       <table class="tbl" id="gpa-tbl">
@@ -297,36 +254,6 @@
     </div>
   </div>
 
-  <!-- 世界时钟 -->
-  <div class="mod" id="m-clock">
-    <h2><span class="no">07</span>世界时钟默认时区<span class="sp"></span><span class="badge" id="clock-badge">默认</span></h2>
-    <div class="row">
-      <select class="input" id="clock-tz"></select>
-      <button class="btn primary" id="clock-save" type="button">保存为默认</button>
-      <button class="btn" id="clock-reset" type="button">恢复北京</button>
-    </div>
-    <p class="empty-tip">主页打开世界时钟时会自动使用这里设置的时区；在主页切换时区也会自动回存。</p>
-  </div>
-
-  <!-- 每日一句 -->
-  <div class="mod" id="m-q">
-    <h2><span class="no">08</span>每日一句<span class="sp"></span><span class="badge" id="q-badge">未置顶</span></h2>
-    <div class="q-label">今天的句子</div>
-    <div class="q-card" id="q-today"></div>
-    <div class="row">
-      <select class="input" id="q-pick"></select>
-      <button class="btn primary" id="q-pin" type="button">置顶这一句</button>
-      <button class="btn" id="q-unpin" type="button">取消置顶</button>
-    </div>
-    <p class="empty-tip">置顶后，主页每次打开每日一句都会固定显示这一句；取消置顶则恢复每天自动轮换。</p>
-  </div>
-
-  <!-- 网盘助手 -->
-  <div class="mod" id="m-pan">
-    <h2><span class="no">09</span>网盘助手解析记录<span class="sp"></span><button class="btn danger sm" id="pan-clear" type="button">清空记录</button></h2>
-    <ul class="list" id="pan-list"></ul>
-  </div>
-
   <footer>ATOUOP · CONSOLE — 数据保存在本浏览器，与 <a href="index.html">主页</a> 同步</footer>
 </div>
 
@@ -341,62 +268,12 @@
     });
   }
   function pad2(n) { return (n < 10 ? '0' : '') + n; }
-  function fmtTime(ts) {
-    var d = new Date(ts);
-    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
-  }
-
-  // ===== 每日一句 / 时区数据（与主页一致）=====
-  var QUOTES = [
-    ['路漫漫其修远兮，吾将上下而求索。', '屈原 · 离骚'],
-    ['长风破浪会有时，直挂云帆济沧海。', '李白 · 行路难'],
-    ['会当凌绝顶，一览众山小。', '杜甫 · 望岳'],
-    ['山重水复疑无路，柳暗花明又一村。', '陆游 · 游山西村'],
-    ['纸上得来终觉浅，绝知此事要躬行。', '陆游 · 冬夜读书示子聿'],
-    ['不积跬步，无以至千里；不积小流，无以成江海。', '荀子 · 劝学'],
-    ['博观而约取，厚积而薄发。', '苏轼'],
-    ['宝剑锋从磨砺出，梅花香自苦寒来。', '警世贤文'],
-    ['与其临渊羡鱼，不如退而结网。', '汉书 · 董仲舒传'],
-    ['学而不思则罔，思而不学则殆。', '论语 · 为政'],
-    ['知之者不如好之者，好之者不如乐之者。', '论语 · 雍也'],
-    ['stay hungry, stay foolish.', 'Steve Jobs'],
-    ['The best way to predict the future is to invent it.', 'Alan Kay'],
-    ['Do not go gentle into that good night.', 'Dylan Thomas'],
-    ['凡是过往，皆为序章。', '莎士比亚（转引）'],
-    ['心之所向，素履以往。', '木心（转引）'],
-    ['星光不问赶路人，时光不负有心人。', '佚名'],
-    ['且视他人之疑目如盏盏鬼火，大胆去走你的夜路。', '史铁生'],
-    ['行动是治愈恐惧的良药，而犹豫将不断滋养恐惧。', '佚名'],
-    ['种一棵树最好的时间是十年前，其次是现在。', '非洲谚语'],
-    ['日日行，不怕千万里；常常做，不怕千万事。', '格言联璧'],
-    ['知不足而奋进，望远山而前行。', '佚名'],
-    ['慢慢来，比较快。', '佚名'],
-    ['生活的理想，就是为了理想的生活。', '张闻天']
-  ];
-  var ZONES = [
-    ['-720', 'UTC-12 埃尼威托克'], ['-660', 'UTC-11 帕果帕果'], ['-600', 'UTC-10 檀香山'],
-    ['-540', 'UTC-9 安克雷奇'], ['-480', 'UTC-8 洛杉矶 / 温哥华'], ['-420', 'UTC-7 丹佛'],
-    ['-360', 'UTC-6 芝加哥'], ['-300', 'UTC-5 纽约 / 多伦多'], ['-240', 'UTC-4 圣地亚哥'],
-    ['-210', 'UTC-3:30 圣约翰斯'], ['-180', 'UTC-3 圣保罗'], ['-120', 'UTC-2 南乔治亚'],
-    ['-60', 'UTC-1 亚速尔'], ['0', 'UTC±0 伦敦 / 里斯本'],
-    ['60', 'UTC+1 巴黎 / 柏林 / 罗马'], ['120', 'UTC+2 开罗 / 雅典'],
-    ['180', 'UTC+3 莫斯科 / 伊斯坦布尔'], ['210', 'UTC+3:30 德黑兰'],
-    ['240', 'UTC+4 迪拜'], ['270', 'UTC+4:30 喀布尔'],
-    ['300', 'UTC+5 卡拉奇'], ['330', 'UTC+5:30 孟买 / 德里'],
-    ['345', 'UTC+5:45 加德满都'], ['360', 'UTC+6 达卡'], ['390', 'UTC+6:30 仰光'],
-    ['420', 'UTC+7 曼谷 / 雅加达'], ['480', 'UTC+8 北京 / 新加坡 / 香港'],
-    ['525', 'UTC+8:45 尤克拉'], ['540', 'UTC+9 东京 / 首尔'], ['570', 'UTC+9:30 阿德莱德'],
-    ['600', 'UTC+10 悉尼 / 布里斯班'], ['660', 'UTC+11 努美阿'],
-    ['720', 'UTC+12 奥克兰 / 斐济'], ['780', 'UTC+13 汤加'], ['840', 'UTC+14 圣诞岛']
-  ];
-  function tzLabel(off) {
-    for (var i = 0; i < ZONES.length; i++) if (parseInt(ZONES[i][0], 10) === off) return ZONES[i][1];
-    return 'UTC' + (off >= 0 ? '+' : '') + (off / 60);
-  }
 
   // ===== 主题（与主页 atouop:theme 同步）=====
   var theme = load('atouop:theme', 'dark');
-  function applyTheme() { document.documentElement.classList.toggle('light', theme === 'light'); }
+  function applyTheme() {
+    document.documentElement.classList.toggle('light', theme === 'light');
+  }
   el('link-theme').addEventListener('click', function (e) {
     e.preventDefault();
     theme = theme === 'light' ? 'dark' : 'light';
@@ -420,11 +297,10 @@
     function frame() {
       ctx.clearRect(0, 0, cv.width, cv.height);
       var now = performance.now();
-      var rgb = getComputedStyle(document.documentElement).getPropertyValue('--star-rgb').trim() || '150,195,255';
       for (var i = 0; i < stars.length; i++) {
         var st = stars[i];
         var alpha = 0.25 + 0.75 * (0.5 + 0.5 * Math.sin(now * st.s + st.a)) * st.tw;
-        ctx.fillStyle = 'rgba(' + rgb + ',' + alpha.toFixed(3) + ')';
+        ctx.fillStyle = 'rgba(150, 195, 255, ' + alpha.toFixed(3) + ')';
         ctx.beginPath();
         ctx.arc(st.x * cv.width, st.y * cv.height, st.r, 0, Math.PI * 2);
         ctx.fill();
@@ -462,12 +338,6 @@
     var grid = load('atouop:pixels', []);
     var filled = Array.isArray(grid) ? grid.filter(function (v) { return v; }).length : 0;
     el('st-px').textContent = filled + ' 格';
-    var tz = load('atouop:clocktz', 480);
-    el('st-tz').textContent = 'UTC' + (tz >= 0 ? '+' : '') + (tz / 60);
-    var pin = load('atouop:pinquote', null);
-    el('st-q').textContent = pin == null ? '今日' : '已置顶';
-    var ph = load('atouop:panhist', []);
-    el('st-pan').textContent = (Array.isArray(ph) ? ph.length : 0) + ' 条';
   }
 
   // ===== 弹幕 =====
@@ -608,13 +478,11 @@
   if (!Array.isArray(gpaRows)) gpaRows = [];
   function gpaRender() {
     var empty = el('gpa-empty'), body = el('gpa-body');
-    var valid = gpaRows.filter(function (r) { return r && (r.name || r.credit || r.score); });
-    if (!valid.length) { empty.hidden = false; body.hidden = true; return; }
+    if (!gpaRows.length) { empty.hidden = false; body.hidden = true; return; }
     empty.hidden = true; body.hidden = false;
     var tb = el('gpa-tbody');
     tb.innerHTML = '';
     gpaRows.forEach(function (r, i) {
-      if (!r || (!r.name && !r.credit && !r.score)) return;
       var tr = document.createElement('tr');
       tr.innerHTML = '<td>' + esc(r.name) + '</td><td class="num">' + esc(r.credit) + '</td><td class="num">' + esc(r.score) + '</td>';
       var td = document.createElement('td');
@@ -630,17 +498,6 @@
       tb.appendChild(tr);
     });
   }
-  el('gpa-add').addEventListener('click', function () {
-    var name = el('gpa-in-name').value.trim();
-    var credit = el('gpa-in-credit').value.trim();
-    var score = el('gpa-in-score').value.trim();
-    if (!name) { alert('请填写课程名称。'); return; }
-    if (!(parseFloat(credit) >= 0) || !(parseFloat(score) >= 0)) { alert('请填写有效的学分和分数。'); return; }
-    gpaRows.push({ name: name, credit: credit, score: score });
-    el('gpa-in-name').value = ''; el('gpa-in-credit').value = ''; el('gpa-in-score').value = '';
-    store('atouop:gpa', gpaRows);
-    gpaRender(); renderStats();
-  });
   el('gpa-clear').addEventListener('click', function () {
     if (!gpaRows.length) return;
     if (!confirm('清空全部绩点课程？')) return;
@@ -686,103 +543,6 @@
     setTimeout(function () { el('rand-save').textContent = old; }, 1200);
   });
 
-  // ===== 世界时钟默认时区 =====
-  var clockSel = el('clock-tz');
-  ZONES.forEach(function (z) {
-    var o = document.createElement('option');
-    o.value = z[0]; o.textContent = z[1];
-    clockSel.appendChild(o);
-  });
-  function clockSettingsRender() {
-    var tz = load('atouop:clocktz', 480);
-    clockSel.value = String(tz);
-    var badge = el('clock-badge');
-    if (tz === 480) { badge.textContent = '默认北京'; badge.classList.remove('on'); }
-    else { badge.textContent = tzLabel(tz); badge.classList.add('on'); }
-  }
-  el('clock-save').addEventListener('click', function () {
-    var tz = parseInt(clockSel.value, 10) || 0;
-    store('atouop:clocktz', tz);
-    clockSettingsRender(); renderStats();
-    var old = el('clock-save').textContent;
-    el('clock-save').textContent = '已保存 ✓';
-    setTimeout(function () { el('clock-save').textContent = old; }, 1200);
-  });
-  el('clock-reset').addEventListener('click', function () {
-    store('atouop:clocktz', 480);
-    clockSettingsRender(); renderStats();
-  });
-
-  // ===== 每日一句 =====
-  var qPick = el('q-pick');
-  QUOTES.forEach(function (q, i) {
-    var o = document.createElement('option');
-    o.value = String(i);
-    o.textContent = (i + 1) + '. ' + q[0].slice(0, 18) + '（' + q[1] + '）';
-    qPick.appendChild(o);
-  });
-  function qRender() {
-    var now0 = new Date();
-    var doy = Math.floor((now0 - new Date(now0.getFullYear(), 0, 0)) / 86400000);
-    var todayIdx = ((doy % QUOTES.length) + QUOTES.length) % QUOTES.length;
-    el('q-today').innerHTML = '<div class="qt">「' + esc(QUOTES[todayIdx][0]) + '」</div><div class="qa">—— ' + esc(QUOTES[todayIdx][1]) + '</div>';
-    var pin = load('atouop:pinquote', null);
-    var badge = el('q-badge');
-    if (pin == null) {
-      badge.textContent = '未置顶'; badge.classList.remove('on');
-      qPick.value = String(todayIdx);
-    } else {
-      pin = ((pin % QUOTES.length) + QUOTES.length) % QUOTES.length;
-      badge.textContent = '已置顶第 ' + (pin + 1) + ' 句'; badge.classList.add('on');
-      qPick.value = String(pin);
-    }
-  }
-  el('q-pin').addEventListener('click', function () {
-    store('atouop:pinquote', parseInt(qPick.value, 10));
-    qRender(); renderStats();
-    var old = el('q-pin').textContent;
-    el('q-pin').textContent = '已置顶 ✓';
-    setTimeout(function () { el('q-pin').textContent = old; }, 1200);
-  });
-  el('q-unpin').addEventListener('click', function () {
-    localStorage.removeItem('atouop:pinquote');
-    qRender(); renderStats();
-  });
-
-  // ===== 网盘解析记录 =====
-  var panHist = load('atouop:panhist', []);
-  if (!Array.isArray(panHist)) panHist = [];
-  function panHistRender() {
-    var box = el('pan-list');
-    if (!panHist.length) { box.innerHTML = '<li class="t">还没有解析记录。在主页网盘助手里解析或打开链接后会记录在这里。</li>'; return; }
-    box.innerHTML = '';
-    panHist.forEach(function (h, i) {
-      var li = document.createElement('li');
-      var plat = document.createElement('span');
-      plat.className = 'pan-plat'; plat.textContent = h.platform || '网盘';
-      var link = document.createElement('span');
-      link.className = 'pan-link t'; link.textContent = h.link || '';
-      var tm = document.createElement('time');
-      tm.textContent = h.ts ? fmtTime(h.ts) : '';
-      var btn = document.createElement('button');
-      btn.className = 'btn danger sm'; btn.type = 'button'; btn.textContent = '删除';
-      btn.addEventListener('click', function () {
-        panHist.splice(i, 1);
-        store('atouop:panhist', panHist);
-        panHistRender(); renderStats();
-      });
-      li.appendChild(plat); li.appendChild(link); li.appendChild(tm); li.appendChild(btn);
-      box.appendChild(li);
-    });
-  }
-  el('pan-clear').addEventListener('click', function () {
-    if (!panHist.length) return;
-    if (!confirm('清空全部网盘解析记录？')) return;
-    panHist = [];
-    store('atouop:panhist', panHist);
-    panHistRender(); renderStats();
-  });
-
   // ===== 启动 =====
   applyTheme();
   renderStats();
@@ -792,9 +552,6 @@
   gpaRender();
   pxRender();
   randRender();
-  clockSettingsRender();
-  qRender();
-  panHistRender();
   setInterval(renderStats, 2000); // 倒计时/主页其他标签页改动可自动刷新统计
 </script>
 </body>

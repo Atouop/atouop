@@ -1337,248 +1337,10 @@
     .btn:hover, .card:hover, .work-row:hover { transform: none; }
     #boot { display: none; }
   }
-
-  /* ============================================================
-     电影感粒子舞台 Hero（北京星空 · 真龙 / 孔雀 / 凤凰）
-     ============================================================ */
-  .hero { display: block; padding: 0; }
-  .hero::after {
-    background: linear-gradient(180deg, rgba(5,7,12,.28) 0%, transparent 22%, transparent 66%, rgba(5,7,12,.9) 100%);
-  }
-
-  .hero-vignette {
-    position: absolute; inset: 0; z-index: 1; pointer-events: none;
-    background: radial-gradient(ellipse 78% 62% at 50% 44%, transparent 52%, rgba(5,7,12,.6) 100%);
-  }
-
-  /* 顶部品牌行 */
-  .hero-top {
-    position: absolute; z-index: 2;
-    top: calc(var(--nav-h) + clamp(16px, 4vh, 44px));
-    left: 0; right: 0;
-  }
-  .hero-top .prompt-line { margin-bottom: 8px; }
-  .hero-word {
-    font-family: var(--display);
-    font-weight: 700;
-    font-size: clamp(1.7rem, 3.4vw, 2.7rem);
-    line-height: 1.1;
-    letter-spacing: .03em;
-    margin-bottom: 8px;
-  }
-  .hero-word span {
-    background: linear-gradient(92deg, #ffffff 0%, #b9d2ff 62%, var(--accent) 100%);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent; color: transparent;
-  }
-  .hero-tag { color: var(--muted); font-size: .9rem; letter-spacing: .04em; }
-
-  /* 场景标题（底部居中） */
-  .scene-caption {
-    position: absolute; z-index: 2;
-    left: 0; right: 0;
-    bottom: clamp(92px, 12.5vh, 148px);
-    text-align: center;
-    padding: 0 20px;
-    transition: opacity .45s ease, transform .45s ease;
-  }
-  .scene-caption.fade { opacity: 0; transform: translateY(14px); }
-  .scene-en {
-    font-family: var(--mono);
-    font-size: clamp(.68rem, 1.15vw, .8rem);
-    letter-spacing: .4em; text-indent: .4em;
-    color: var(--accent);
-    margin-bottom: 10px;
-    opacity: .92;
-  }
-  .scene-zh {
-    font-family: var(--display);
-    font-weight: 700;
-    font-size: clamp(2.1rem, 5.4vw, 3.8rem);
-    letter-spacing: .14em; text-indent: .14em;
-    line-height: 1.08;
-    color: #f4f8ff;
-    text-shadow: 0 0 34px rgba(90,140,255,.5);
-  }
-  .scene-desc {
-    margin-top: 12px;
-    color: var(--muted);
-    font-size: clamp(.84rem, 1.4vw, .98rem);
-    letter-spacing: .08em;
-  }
-  .scene-line {
-    width: 66px; height: 2px; margin: 18px auto 0;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-  }
-
-  /* 阶段指示点 */
-  .phase-dots {
-    position: absolute; z-index: 2;
-    bottom: clamp(44px, 5.6vh, 68px);
-    left: 0; right: 0;
-    display: flex; justify-content: center; gap: 11px;
-  }
-  .phase-dots span {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: rgba(160,180,220,.28);
-    transition: all .35s ease;
-    cursor: pointer;
-  }
-  .phase-dots span.active {
-    background: var(--accent);
-    box-shadow: 0 0 10px rgba(61,123,255,.85);
-    transform: scale(1.3);
-  }
-
-  /* 滚动提示移到左下 */
-  .hero .scroll-hint { left: clamp(20px, 4vw, 44px); transform: none; align-items: flex-start; }
-
-  /* ============================================================
-     虚拟客服 · 颺（图2 白狼形象）
-     ============================================================ */
-  .mascot {
-    position: fixed;
-    right: clamp(16px, 3vw, 34px);
-    bottom: clamp(16px, 3vw, 32px);
-    z-index: 1500;
-  }
-  .mascot-btn {
-    position: relative;
-    width: 78px; height: 78px;
-    border-radius: 50%;
-    border: 2px solid rgba(122,164,255,.55);
-    overflow: hidden;
-    cursor: pointer;
-    background: #dfeaf7;
-    padding: 0;
-    box-shadow: 0 12px 32px rgba(20,60,160,.38), 0 0 0 5px rgba(61,123,255,.12);
-    animation: mascotFloat 4.2s ease-in-out infinite;
-    transition: transform .2s ease;
-  }
-  .mascot-btn:hover { transform: scale(1.07); }
-  .mascot-btn img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 16%; }
-  .mascot-dot {
-    position: absolute; right: 3px; bottom: 3px;
-    width: 15px; height: 15px; border-radius: 50%;
-    background: #36d57a; border: 2px solid #060a12;
-  }
-  .mascot-ping {
-    position: absolute; inset: -2px; border-radius: 50%;
-    border: 2px solid rgba(90,140,255,.7);
-    animation: mascotPing 2.4s ease-out infinite;
-    pointer-events: none;
-  }
-  @keyframes mascotFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-  @keyframes mascotPing { 0% { transform: scale(1); opacity: .8; } 100% { transform: scale(1.45); opacity: 0; } }
-
-  .mascot-bubble {
-    position: absolute; right: 90px; bottom: 16px;
-    max-width: 226px;
-    background: #f2f7ff; color: #0b1526;
-    padding: 11px 15px; border-radius: 14px;
-    font-size: .87rem; line-height: 1.5;
-    box-shadow: 0 12px 32px rgba(20,40,90,.28);
-    cursor: pointer;
-    opacity: 0; transform: translateX(12px);
-    transition: all .35s ease;
-  }
-  .mascot-bubble.show { opacity: 1; transform: translateX(0); }
-  .mascot-bubble::after {
-    content: ""; position: absolute; right: -7px; bottom: 18px;
-    border: 7px solid transparent; border-left-color: #f2f7ff; border-right-width: 0;
-  }
-
-  .mascot-panel {
-    position: absolute;
-    right: 0; bottom: 92px;
-    width: min(366px, calc(100vw - 32px));
-    height: min(548px, calc(100vh - 140px));
-    background: rgba(9,15,27,.93);
-    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-    border: 1px solid var(--line-strong);
-    border-radius: 16px;
-    box-shadow: 0 30px 80px rgba(0,0,0,.55);
-    display: flex; flex-direction: column; overflow: hidden;
-    opacity: 0; transform: translateY(20px) scale(.97); pointer-events: none;
-    transition: all .3s cubic-bezier(.2,.8,.2,1);
-  }
-  .mascot-panel.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-
-  .mascot-head {
-    display: flex; align-items: center; gap: 11px;
-    padding: 13px 15px; border-bottom: 1px solid var(--line);
-  }
-  .mascot-head img {
-    width: 44px; height: 44px; border-radius: 50%;
-    object-fit: cover; object-position: 50% 14%;
-    background: #dfeaf7; flex-shrink: 0;
-  }
-  .mh-name { font-weight: 600; font-size: .95rem; line-height: 1.3; }
-  .mh-status {
-    font-size: .73rem; color: var(--muted);
-    display: flex; align-items: center; gap: 6px;
-  }
-  .mh-status span { width: 7px; height: 7px; border-radius: 50%; background: #36d57a; }
-  .mh-close {
-    margin-left: auto; background: none; border: none;
-    color: var(--muted); font-size: 1.5rem; line-height: 1;
-    cursor: pointer; padding: 4px;
-  }
-  .mh-close:hover { color: var(--text); }
-
-  .mascot-msgs {
-    flex: 1; overflow-y: auto;
-    padding: 16px 15px; display: flex; flex-direction: column; gap: 10px;
-  }
-  .m-msg {
-    max-width: 84%; padding: 9px 13px; border-radius: 12px;
-    font-size: .87rem; line-height: 1.55; white-space: pre-wrap;
-    word-break: break-word;
-  }
-  .m-msg.bot { background: rgba(255,255,255,.07); color: #e7eef9; align-self: flex-start; border-bottom-left-radius: 4px; }
-  .m-msg.user { background: var(--accent); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
-  .m-typing { display: inline-flex; gap: 4px; padding: 12px 14px; }
-  .m-typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: mTyp 1.1s infinite; }
-  .m-typing i:nth-child(2) { animation-delay: .18s; }
-  .m-typing i:nth-child(3) { animation-delay: .36s; }
-  @keyframes mTyp { 0%,60%,100% { transform: translateY(0); opacity: .5; } 30% { transform: translateY(-4px); opacity: 1; } }
-
-  .mascot-chips {
-    display: flex; flex-wrap: wrap; gap: 7px;
-    padding: 9px 15px; border-top: 1px solid var(--line);
-  }
-  .mascot-chips button {
-    font-size: .75rem; padding: 5px 11px; border-radius: 999px;
-    border: 1px solid var(--line-strong); background: transparent;
-    color: var(--muted); cursor: pointer; font-family: var(--body);
-  }
-  .mascot-chips button:hover { color: var(--accent); border-color: var(--accent); }
-
-  .mascot-input { display: flex; gap: 8px; padding: 12px 15px; border-top: 1px solid var(--line); }
-  .mascot-input input {
-    flex: 1; background: rgba(255,255,255,.05);
-    border: 1px solid var(--line); border-radius: 8px;
-    padding: 9px 12px; color: var(--text); font-size: .86rem;
-    outline: none; font-family: var(--body);
-  }
-  .mascot-input input:focus { border-color: var(--accent); }
-  .mascot-input button {
-    background: var(--accent); color: #fff; border: none;
-    border-radius: 8px; padding: 0 16px; font-size: .84rem;
-    cursor: pointer; font-family: var(--body);
-  }
-  .mascot-input button:hover { background: var(--accent-deep); }
-
-  @media (max-width: 720px) {
-    .hero .scroll-hint { display: none; }
-    .mascot-btn { width: 66px; height: 66px; }
-    .mascot-bubble { right: 76px; max-width: 190px; }
-  }
 </style>
 
   <!-- ===== Umami 访问统计 ===== -->
   <script defer src="https://cloud.umami.is/script.js" data-website-id="47cffba6-a644-4960-86d6-03aec8c1d30a"></script>
-  <script src="assets/shapes.js"></script>
 </head>
 <body id="top">
 
@@ -1605,31 +1367,23 @@
     </div>
   </header>
 
-  <!-- ===== Hero（电影感粒子舞台） ===== -->
-  <section class="hero" id="hero">
-    <div class="hero-vignette" aria-hidden="true"></div>
-
-    <!-- 顶部品牌行 -->
-    <div class="hero-top">
-      <div class="wrap">
-        <p class="prompt-line hero-anim" style="--d:.1s"><span class="dollar">atouop@web:~$</span> whoami</p>
-        <h1 class="hero-word hero-anim" style="--d:.22s"><span>ATOUOP</span></h1>
-        <p class="hero-tag hero-anim" style="--d:.34s">一个安静、专注的数字角落</p>
+  <!-- ===== Hero ===== -->
+  <section class="hero">
+    <div class="hero-bg hero-zoom" aria-hidden="true"></div>
+    <div class="wrap">
+      <p class="prompt-line hero-anim" style="--d:.08s"><span class="dollar">atouop@web:~$</span> whoami</p>
+      <h1 class="hero-anim h1-type" style="--d:.2s">ATOUOP<span class="cursor" aria-hidden="true"></span></h1>
+      <p class="hero-sub hero-anim" style="--d:.62s">这里是我的个人主页 —— 一个<strong>安静、专注</strong>的数字角落。</p>
+      <p class="echo-line hero-anim" style="--d:.8s">&gt; welcome to my corner of the web</p>
+      <div class="cta-row hero-anim" style="--d:.94s">
+        <a class="btn btn-primary" href="#about">
+          关于我
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+        </a>
+        <a class="btn btn-ghost" href="#works">我的作品</a>
       </div>
     </div>
-
-    <!-- 场景标题 -->
-    <div class="scene-caption" id="scene-caption">
-      <p class="scene-en" id="scene-en">BEIJING STARRY SKY</p>
-      <h2 class="scene-zh" id="scene-zh">北京星空</h2>
-      <p class="scene-desc" id="scene-desc">粒子如星，静守京城夜空</p>
-      <div class="scene-line"></div>
-    </div>
-
-    <!-- 阶段指示点 -->
-    <div class="phase-dots" id="phase-dots"></div>
-
-    <div class="scroll-hint scroll-hint-anim" style="--d:1s" aria-hidden="true">
+    <div class="scroll-hint scroll-hint-anim" style="--d:1.1s" aria-hidden="true">
       <span>scroll</span>
       <span class="bar"></span>
     </div>
@@ -2011,38 +1765,6 @@
       <span class="mono-note">© <span id="year">2026</span> Atouop · 白 · 黑 · 蓝</span>
     </div>
   </footer>
-  <!-- ===== 虚拟客服 颺（图2 白狼） ===== -->
-  <div class="mascot" id="mascot">
-    <div class="mascot-bubble" id="mascot-bubble">你好呀，我是颺，有什么可以帮你的吗？</div>
-    <button class="mascot-btn" id="mascot-btn" type="button" aria-label="打开客服颺">
-      <span class="mascot-ping"></span>
-      <img src="assets/wolf.jpg" alt="颺客服">
-      <span class="mascot-dot"></span>
-    </button>
-    <div class="mascot-panel" id="mascot-panel">
-      <div class="mascot-head">
-        <img src="assets/wolf.jpg" alt="颺">
-        <div>
-          <p class="mh-name">颺 · 智能客服</p>
-          <p class="mh-status"><span></span>在线 · 随时为你服务</p>
-        </div>
-        <button class="mh-close" id="mascot-close" type="button" aria-label="关闭">×</button>
-      </div>
-      <div class="mascot-msgs" id="mascot-msgs"></div>
-      <div class="mascot-chips" id="mascot-chips">
-        <button type="button" data-q="页面在演什么？">页面在演什么？</button>
-        <button type="button" data-q="龙、孔雀、凤凰是什么？">龙/孔雀/凤凰</button>
-        <button type="button" data-q="梵高的星空是什么？">梵高星空</button>
-        <button type="button" data-q="站长是谁？">关于站长</button>
-      </div>
-      <div class="mascot-input">
-        <input id="mascot-text" type="text" placeholder="输入消息，回车发送" maxlength="80">
-        <button id="mascot-send" type="button">发送</button>
-      </div>
-    </div>
-  </div>
-
-
 
 <script>
   // ===== 年份 =====
@@ -2284,582 +2006,244 @@
 </script>
 
 <script>
-  // ============================================================
-  // 电影感粒子引擎：北京星空 → 真龙 / 孔雀 / 凤凰，梵高星月夜过渡
-  // ============================================================
+  // ===== 星空深渊背景（鼠标视差 + 圆弧流星） =====
   (function () {
     var canvas = document.getElementById('starfield');
     if (!canvas) return;
     var ctx = canvas.getContext('2d');
-    var W = 0, H = 0, DPR = 1, N = 0;
+    var W = 0, H = 0, DPR = 1;
+    var stars = [];
+    var meteors = [];
+    var mouse = { x: 0.5, y: 0.5, tx: 0.5, ty: 0.5 };
     var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var raf = null, last = 0, lastRound = 0;
+    var ROUND_INTERVAL = 5000; // 每5秒触发一轮
 
-    // ---------- 神兽形态配置（图片来源见 head 中的 shapes.js） ----------
-    var SHAPES = {
-      dragon: { aspect: 1, boxH: .50, cy: .45, max: 2600, pts: [] },
-      peacock: { aspect: 1, boxH: .68, cy: .45, max: 3000, pts: [] },
-      phoenix: { aspect: 1, boxH: .74, cy: .47, max: 2800, pts: [] }
-    };
-
-    // ---------- 阶段编排 ----------
-    var PHASES = [
-      { key: 'sky', dur: 8500 },
-      { key: 'dragon', morph: 2800, hold: 5800 },
-      { key: 'vangogh', dur: 4800 },
-      { key: 'peacock', morph: 2800, hold: 5800 },
-      { key: 'vangogh', dur: 4800 },
-      { key: 'phoenix', morph: 2800, hold: 5800 },
-      { key: 'vangogh', dur: 4800 }
-    ];
-    var CAPTION = {
-      sky: { en: 'BEIJING STARRY SKY', zh: '北京星空', desc: '粒子如星，静守京城夜空' },
-      dragon: { en: 'THE DRAGON AWAKENS', zh: '真龙现世', desc: '千年一啸，云从龙而星为鳞' },
-      peacock: { en: 'PEACOCK IN SPLENDOUR', zh: '孔雀开屏', desc: '金翠尾屏，一展天下春色' },
-      phoenix: { en: 'PHOENIX ASCENDS', zh: '凤凰腾空', desc: '浴火重生，扶摇直上九万里' },
-      vangogh: { en: 'THE STARRY NIGHT · VAN GOGH', zh: '星月夜 · 梵高', desc: '旋涡流转，群星如河入梦' }
-    };
-
-    var particles = [];
-    var centers = [];
-    var winDots = [];
-    var vStars = [];
-    var dots = [];
-    var phaseIdx = 0, phaseT0 = 0, last = 0, raf = null;
-    var skylineAlpha = 0, skylineTarget = 1, vgFirst = true;
-
-    var captionEl = document.getElementById('scene-caption');
-    var enEl = document.getElementById('scene-en');
-    var zhEl = document.getElementById('scene-zh');
-    var descEl = document.getElementById('scene-desc');
-    var dotsEl = document.getElementById('phase-dots');
-    var captionTimer = null;
-
-    // ---------- 像素采样 ----------
-    function sampleShape(key) {
-      return new Promise(function (res) {
-        var dataUri = window.SHAPE_IMAGES && window.SHAPE_IMAGES[key];
-        if (!dataUri) { res([]); return; }
-        var im = new Image();
-        im.onload = function () {
-          SHAPES[key].aspect = im.width / im.height;
-          var maxH = 380, sc = Math.min(1, maxH / im.height);
-          var cw = Math.max(2, Math.round(im.width * sc));
-          var ch = Math.max(2, Math.round(im.height * sc));
-          var cv = document.createElement('canvas');
-          cv.width = cw; cv.height = ch;
-          var cc = cv.getContext('2d');
-          cc.drawImage(im, 0, 0, cw, ch);
-          var d;
-          try { d = cc.getImageData(0, 0, cw, ch).data; } catch (e) { res([]); return; }
-          var raw = [];
-          for (var y = 0; y < ch; y++) {
-            for (var x = 0; x < cw; x++) {
-              var i = (y * cw + x) * 4;
-              var r = d[i], g = d[i + 1], b = d[i + 2], a = d[i + 3];
-              if (a < 24) continue;
-              if (r > 236 && g > 236 && b > 236) continue;
-              if (Math.min(r, g, b) > 226) continue;
-              raw.push(x, y, r, g, b);
-            }
-          }
-          var pts = [];
-          for (var k = 0; k < raw.length; k += 5) {
-            pts.push({ u: raw[k] / cw, v: raw[k + 1] / ch, r: raw[k + 2], g: raw[k + 3], b: raw[k + 4] });
-          }
-          var max = SHAPES[key].max;
-          if (pts.length > max) {
-            var out = [], st = pts.length / max;
-            for (var k2 = 0; k2 < max; k2++) out.push(pts[Math.floor(k2 * st)]);
-            pts = out;
-          }
-          res(pts);
-        };
-        im.onerror = function () { res([]); };
-        im.src = dataUri;
-      });
-    }
-
-    // ---------- 粒子池 ----------
-    function buildParticles() {
-      var base = Math.round(Math.min(W * H / 1500, 4200));
-      var need = base;
-      Object.keys(SHAPES).forEach(function (k) { need = Math.max(need, SHAPES[k].pts.length + 120); });
-      N = Math.min(need, 4600);
-      particles = [];
-      for (var i = 0; i < N; i++) {
-        var bl = Math.random() < .25;
-        particles.push({
-          x: Math.random() * W, y: Math.random() * H, vx: 0, vy: 0,
-          tx: 0, ty: 0,
-          cr: bl ? 150 : 255, cg: bl ? 180 : 255, cb: 255,
-          tcr: 255, tcg: 255, tcb: 255,
-          r: .5 + Math.random(), tr: 1, a: .1 + Math.random() * .4, ta: .5,
-          ph: Math.random() * Math.PI * 2,
-          ci: 0, sr: 0, ang: 0, sp: 0, px: 0, py: 0
+    function spawn() {
+      var count = Math.round(Math.min(320, (W * H) / 5200));
+      stars = [];
+      for (var i = 0; i < count; i++) {
+        stars.push({
+          x: -24 + Math.random() * (W + 48),
+          y: -24 + Math.random() * (H + 48),
+          r: 0.3 + Math.random() * 1.35,
+          depth: 0.25 + Math.random() * 0.75,
+          base: 0.18 + Math.random() * 0.5,
+          phase: Math.random() * Math.PI * 2,
+          speed: 0.35 + Math.random() * 1.05,
+          blue: Math.random() < 0.22
         });
       }
     }
 
-    // ---------- 阶段目标 ----------
-    function enterSkyTargets() {
-      for (var i = 0; i < N; i++) {
-        var p = particles[i];
-        p.tx = Math.random() * W; p.ty = Math.random() * H * .8;
-        var bl = Math.random() < .25;
-        p.tcr = bl ? 130 : 255; p.tcg = bl ? 170 : 255; p.tcb = 255;
-        p.ta = .25 + Math.random() * .55; p.tr = .4 + Math.random() * 1.1;
-        p.vx *= .3; p.vy *= .3;
-      }
-    }
-    function enterShapeTargets(key) {
-      var cfg = SHAPES[key], pts = cfg.pts;
-      var bh = H * cfg.boxH, bw = bh * cfg.aspect;
-      var cx = W / 2, cy = H * cfg.cy;
-      var left = cx - bw / 2, top = cy - bh / 2;
-      for (var i = 0; i < N; i++) {
-        var p = particles[i];
-        if (i < pts.length) {
-          var q = pts[i];
-          p.tx = left + q.u * bw; p.ty = top + q.v * bh;
-          p.tcr = q.r; p.tcg = q.g; p.tcb = q.b;
-          p.ta = .95; p.tr = .9 + Math.random() * .7;
-        } else {
-          p.tx = Math.random() * W; p.ty = Math.random() * H * .82;
-          p.tcr = 150; p.tcg = 180; p.tcb = 255; p.ta = .12; p.tr = .5;
-        }
-        p.vx *= .2; p.vy *= .2;
-      }
-    }
-
-    // ---------- 梵高星月夜 旋涡 ----------
-    function enterSwirl() {
-      var pal = [
-        [20, 42, 112], [30, 68, 168], [46, 102, 196], [86, 144, 224], [126, 172, 232],
-        [245, 230, 160], [255, 214, 104]
-      ];
-      for (var i = 0; i < N; i++) {
-        var p = particles[i];
-        var ci = i % centers.length, c = centers[ci];
-        p.ci = ci;
-        p.sr = (.12 + Math.random() * .88) * c.r;
-        p.ang = Math.random() * Math.PI * 2;
-        p.sp = (.0022 + Math.random() * .006) * (Math.random() < .5 ? 1 : -1);
-        var col = Math.random() < .1
-          ? pal[5 + (Math.random() < .5 ? 0 : 1)]
-          : pal[Math.floor(Math.random() * 5)];
-        p.tcr = col[0]; p.tcg = col[1]; p.tcb = col[2];
-        p.ta = .85; p.tr = .8 + Math.random();
-        p.x = c.x + Math.cos(p.ang) * p.sr;
-        p.y = c.y + Math.sin(p.ang) * p.sr;
-        p.px = p.x; p.py = p.y;
-        p.cr = col[0]; p.cg = col[1]; p.cb = col[2];
-      }
-      vStars = [];
-      for (var k = 0; k < 7; k++) {
-        vStars.push({ x: W * .02 + Math.random() * W * .96, y: H * .04 + Math.random() * H * .6, r: 2 + Math.random() * 2.6, ph: Math.random() * 6.28 });
-      }
-      vgFirst = true;
-    }
-    function updateSwirl(dt, now) {
-      for (var i = 0; i < N; i++) {
-        var p = particles[i], c = centers[p.ci];
-        p.ang += p.sp * dt;
-        p.sr += Math.sin(now * .0006 + p.ph) * .12 * dt;
-        p.px = p.x; p.py = p.y;
-        p.x = c.x + Math.cos(p.ang) * p.sr;
-        p.y = c.y + Math.sin(p.ang) * p.sr;
-        p.cr += (p.tcr - p.cr) * .06 * dt;
-        p.cg += (p.tcg - p.cg) * .06 * dt;
-        p.cb += (p.tcb - p.cb) * .06 * dt;
-        p.a += (p.ta - p.a) * .08 * dt;
-      }
-    }
-    function drawSwirl(now) {
-      ctx.save();
-      ctx.lineCap = 'round';
-      for (var i = 0; i < N; i++) {
-        var p = particles[i];
-        if (p.a < .02) continue;
-        ctx.strokeStyle = 'rgba(' + (p.cr | 0) + ',' + (p.cg | 0) + ',' + (p.cb | 0) + ',' + (p.a * .6) + ')';
-        ctx.lineWidth = p.tr;
-        ctx.beginPath(); ctx.moveTo(p.px, p.py); ctx.lineTo(p.x, p.y); ctx.stroke();
-      }
-      ctx.globalCompositeOperation = 'lighter';
-      for (var k = 0; k < vStars.length; k++) {
-        var s = vStars[k];
-        var tw = .55 + Math.sin(now * .0022 + s.ph) * .45;
-        var rr = s.r * 7;
-        var g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, rr);
-        g.addColorStop(0, 'rgba(255,238,168,' + tw + ')');
-        g.addColorStop(.35, 'rgba(255,210,110,' + (tw * .35) + ')');
-        g.addColorStop(1, 'rgba(255,210,110,0)');
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(s.x, s.y, rr, 0, 6.28); ctx.fill();
-        ctx.fillStyle = 'rgba(255,246,210,' + tw + ')';
-        ctx.beginPath(); ctx.arc(s.x, s.y, s.r * .6, 0, 6.28); ctx.fill();
-      }
-      ctx.restore();
-    }
-
-    // ---------- 弹簧汇聚（星空 / 神兽） ----------
-    function updateSprings(dt, now, key, local, ph) {
-      var morphing = key !== 'sky' && local < ph.morph;
-      var k = morphing ? .03 : .014;
-      var damp = Math.pow(morphing ? .82 : .86, dt);
-      for (var i = 0; i < N; i++) {
-        var p = particles[i];
-        p.vx += (p.tx - p.x) * k * dt;
-        p.vy += (p.ty - p.y) * k * dt;
-        p.vx *= damp; p.vy *= damp;
-        p.x += p.vx * dt; p.y += p.vy * dt;
-        if (!morphing) {
-          if (key === 'sky') {
-            p.x += Math.sin(now * .0004 + p.ph) * .18 * dt;
-            p.y += Math.cos(now * .0005 + p.ph) * .15 * dt;
-          } else {
-            p.x += Math.sin(now * .002 + p.ph) * .1 * dt;
-            p.y += Math.cos(now * .002 + p.ph) * .1 * dt;
-          }
-        }
-        p.cr += (p.tcr - p.cr) * .08 * dt;
-        p.cg += (p.tcg - p.cg) * .08 * dt;
-        p.cb += (p.tcb - p.cb) * .08 * dt;
-        var tw = p.ta;
-        if (key === 'sky') tw *= .5 + Math.sin(now * .002 + p.ph) * .5;
-        else if (!morphing) tw *= .82 + Math.sin(now * .003 + p.ph) * .18;
-        p.a += (tw - p.a) * .1 * dt;
-        p.r += (p.tr - p.r) * .1 * dt;
-      }
-    }
-
-    // ---------- 滚动后：安静星点 ----------
-    function updateCalm(dt, now) {
-      for (var i = 0; i < N; i++) {
-        var p = particles[i];
-        p.x += Math.sin(now * .0003 + p.ph) * .12 * dt;
-        p.y += Math.cos(now * .0004 + p.ph) * .1 * dt;
-        if (p.x < -10) p.x = W + 10; if (p.x > W + 10) p.x = -10;
-        if (p.y < -10) p.y = H + 10; if (p.y > H + 10) p.y = -10;
-        var tw = .1 + .2 * (.5 + Math.sin(now * .0014 + p.ph) * .5);
-        p.a += (tw - p.a) * .08 * dt;
-        p.cr += (p.tcr - p.cr) * .04 * dt;
-        p.cg += (p.tcg - p.cg) * .04 * dt;
-        p.cb += (p.tcb - p.cb) * .04 * dt;
-      }
-    }
-
-    function drawPoints() {
-      ctx.save();
-      for (var i = 0; i < N; i++) {
-        var p = particles[i];
-        if (p.a < .02) continue;
-        ctx.fillStyle = 'rgba(' + (p.cr | 0) + ',' + (p.cg | 0) + ',' + (p.cb | 0) + ',' + p.a + ')';
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28); ctx.fill();
-      }
-      ctx.restore();
-    }
-
-    // ---------- 背景 ----------
-    function drawNightBg() {
-      var g = ctx.createLinearGradient(0, 0, 0, H);
-      g.addColorStop(0, '#04070f');
-      g.addColorStop(.5, '#070e1d');
-      g.addColorStop(1, '#0b1326');
-      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-      ctx.save();
-      ctx.globalCompositeOperation = 'lighter';
-      var blobs = [
-        [.25, .3, 260, 'rgba(40,80,170,.10)'],
-        [.7, .25, 240, 'rgba(80,60,160,.08)'],
-        [.5, .6, 300, 'rgba(30,90,160,.07)']
-      ];
-      for (var i = 0; i < blobs.length; i++) {
-        var b = blobs[i];
-        var rg = ctx.createRadialGradient(W * b[0], H * b[1], 0, W * b[0], H * b[1], b[2]);
-        rg.addColorStop(0, b[3]); rg.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
-      }
-      ctx.restore();
-    }
-    function drawVgBg(first) {
-      if (first) {
-        var g = ctx.createLinearGradient(0, 0, 0, H);
-        g.addColorStop(0, '#0b1f52');
-        g.addColorStop(.55, '#133d8f');
-        g.addColorStop(1, '#0a1942');
-        ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-      } else {
-        ctx.fillStyle = 'rgba(9,26,74,.22)';
-        ctx.fillRect(0, 0, W, H);
-      }
-    }
-
-    // ---------- 北京天际线 ----------
-    function roof(x, y, w, h, s) {
-      ctx.beginPath();
-      ctx.moveTo(x - w / 2, y);
-      ctx.quadraticCurveTo(x - w / 2 - 7 * s, y - 5 * s, x - w / 2 + 12 * s, y - h * .5);
-      ctx.quadraticCurveTo(x, y - h * 1.12, x + w / 2 - 12 * s, y - h * .5);
-      ctx.quadraticCurveTo(x + w / 2 + 7 * s, y - 5 * s, x + w / 2, y);
-      ctx.closePath(); ctx.fill();
-    }
-    function temple(x, y, s) {
-      ctx.fillRect(x - 100 * s, y - 14 * s, 200 * s, 14 * s);
-      ctx.fillRect(x - 82 * s, y - 27 * s, 164 * s, 13 * s);
-      ctx.fillRect(x - 62 * s, y - 72 * s, 124 * s, 45 * s);
-      roof(x, y - 72 * s, 150 * s, 42 * s, s);
-      ctx.fillRect(x - 46 * s, y - 106 * s, 92 * s, 20 * s);
-      roof(x, y - 106 * s, 112 * s, 34 * s, s);
-      ctx.fillRect(x - 30 * s, y - 132 * s, 60 * s, 16 * s);
-      roof(x, y - 132 * s, 80 * s, 28 * s, s);
-      ctx.fillRect(x - 2 * s, y - 160 * s, 4 * s, 22 * s);
-      ctx.beginPath(); ctx.arc(x, y - 162 * s, 4.5 * s, 0, 6.28); ctx.fill();
-    }
-    function tiananmen(x, y, s) {
-      ctx.fillRect(x - 132 * s, y - 16 * s, 264 * s, 16 * s);
-      ctx.fillRect(x - 108 * s, y - 74 * s, 216 * s, 58 * s);
-      ctx.fillStyle = 'rgba(255,196,96,.55)';
-      for (var k = 0; k < 5; k++) {
-        var ax = x - 72 * s + k * 36 * s;
-        ctx.fillRect(ax, y - 40 * s, 15 * s, 24 * s);
-        ctx.beginPath(); ctx.arc(ax + 7.5 * s, y - 40 * s, 7.5 * s, Math.PI, 0); ctx.fill();
-      }
-      ctx.fillStyle = '#02050c';
-      ctx.fillRect(x - 92 * s, y - 84 * s, 184 * s, 12 * s);
-      roof(x, y - 84 * s, 224 * s, 30 * s, s);
-      ctx.fillRect(x - 72 * s, y - 116 * s, 144 * s, 26 * s);
-      ctx.fillRect(x - 80 * s, y - 124 * s, 160 * s, 10 * s);
-      roof(x, y - 124 * s, 164 * s, 30 * s, s);
-      ctx.fillRect(x - 2 * s, y - 158 * s, 4 * s, 10 * s);
-    }
-    function needle(x, y, s) {
-      ctx.fillRect(x - 22 * s, y - 28 * s, 44 * s, 28 * s);
-      ctx.fillRect(x - 6 * s, y - 190 * s, 12 * s, 150 * s);
-      ctx.beginPath();
-      ctx.moveTo(x - 17 * s, y - 150 * s);
-      ctx.quadraticCurveTo(x - 24 * s, y - 168 * s, x - 15 * s, y - 186 * s);
-      ctx.lineTo(x + 15 * s, y - 186 * s);
-      ctx.quadraticCurveTo(x + 24 * s, y - 168 * s, x + 17 * s, y - 150 * s);
-      ctx.closePath(); ctx.fill();
-      ctx.fillRect(x - 2 * s, y - 232 * s, 4 * s, 46 * s);
-    }
-    function cctv(x, y, s) {
-      ctx.fillRect(x - 72 * s, y - 14 * s, 144 * s, 14 * s);
-      ctx.beginPath();
-      ctx.moveTo(x - 68 * s, y); ctx.lineTo(x - 36 * s, y);
-      ctx.lineTo(x - 14 * s, y - 178 * s); ctx.lineTo(x - 46 * s, y - 178 * s);
-      ctx.closePath(); ctx.fill();
-      ctx.beginPath();
-      ctx.moveTo(x + 36 * s, y); ctx.lineTo(x + 68 * s, y);
-      ctx.lineTo(x + 46 * s, y - 178 * s); ctx.lineTo(x + 14 * s, y - 178 * s);
-      ctx.closePath(); ctx.fill();
-      ctx.fillRect(x - 46 * s, y - 182 * s, 92 * s, 18 * s);
-    }
-    function zun(x, y, s) {
-      ctx.beginPath();
-      ctx.moveTo(x - 28 * s, y);
-      ctx.lineTo(x - 28 * s, y - 42 * s);
-      ctx.quadraticCurveTo(x - 13 * s, y - 120 * s, x - 17 * s, y - 202 * s);
-      ctx.quadraticCurveTo(x - 23 * s, y - 222 * s, x - 26 * s, y - 238 * s);
-      ctx.lineTo(x + 26 * s, y - 238 * s);
-      ctx.quadraticCurveTo(x + 23 * s, y - 222 * s, x + 17 * s, y - 202 * s);
-      ctx.quadraticCurveTo(x + 13 * s, y - 120 * s, x + 28 * s, y - 42 * s);
-      ctx.lineTo(x + 28 * s, y);
-      ctx.closePath(); ctx.fill();
-      ctx.fillRect(x - 27 * s, y - 246 * s, 54 * s, 9 * s);
-    }
-    function worldTower(x, y, s) {
-      ctx.fillRect(x - 18 * s, y - 180 * s, 36 * s, 180 * s);
-      ctx.beginPath();
-      ctx.moveTo(x - 18 * s, y - 180 * s); ctx.lineTo(x, y - 200 * s); ctx.lineTo(x + 18 * s, y - 180 * s);
-      ctx.closePath(); ctx.fill();
-      ctx.fillRect(x - 2 * s, y - 212 * s, 4 * s, 12 * s);
-      ctx.fillRect(x + 24 * s, y - 140 * s, 24 * s, 140 * s);
-    }
-    function drum(x, y, s) {
-      ctx.fillRect(x - 42 * s, y - 12 * s, 84 * s, 12 * s);
-      ctx.fillRect(x - 30 * s, y - 62 * s, 60 * s, 50 * s);
-      roof(x, y - 62 * s, 86 * s, 22 * s, s);
-      ctx.fillRect(x - 22 * s, y - 88 * s, 44 * s, 20 * s);
-      roof(x, y - 88 * s, 62 * s, 20 * s, s);
-    }
-
-    function buildWinDots() {
-      winDots = [];
-      var seed = 12345;
-      function rnd() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
-      for (var i = 0; i < 70; i++) winDots.push({ x: rnd() * W, y: H * .62 + rnd() * H * .3 });
-    }
-    function drawSkyline(a) {
-      var y = H * .94, s = H / 880;
-      ctx.save();
-      ctx.globalAlpha = a;
-      var hg = ctx.createLinearGradient(0, y - H * .14, 0, y);
-      hg.addColorStop(0, 'rgba(70,110,200,0)');
-      hg.addColorStop(1, 'rgba(100,150,255,.2)');
-      ctx.fillStyle = hg; ctx.fillRect(0, y - H * .14, W, H * .14);
-      ctx.fillStyle = '#02050c';
-      ctx.fillRect(0, y, W, H - y);
-      var blocks = [
-        [.02, .05, 90], [.07, .04, 70], [.11, .05, 60], [.21, .05, 80], [.25, .04, 55], [.30, .05, 70],
-        [.36, .05, 60], [.40, .04, 50], [.45, .05, 75], [.55, .05, 60], [.59, .04, 55], [.62, .05, 70],
-        [.69, .05, 55], [.78, .05, 65], [.84, .05, 80], [.90, .04, 60], [.95, .05, 75]
-      ];
-      for (var i = 0; i < blocks.length; i++) {
-        var b = blocks[i];
-        ctx.fillRect(W * b[0], y - b[2] * s, W * b[1], b[2] * s);
-      }
-      temple(W * .16, y, s);
-      needle(W * .33, y, s);
-      tiananmen(W * .5, y, s);
-      cctv(W * .64, y, s);
-      zun(W * .74, y, s);
-      worldTower(W * .85, y, s);
-      drum(W * .94, y, s);
-      ctx.fillStyle = 'rgba(255,200,120,.5)';
-      for (var w = 0; w < winDots.length; w++) {
-        ctx.fillRect(winDots[w].x, winDots[w].y, 1.6 * s, 1.6 * s);
-      }
-      ctx.restore();
-    }
-
-    // ---------- 阶段切换 ----------
-    function phaseDur(ph) { return ph.dur || ph.morph + ph.hold; }
-    function enterPhase(idx) {
-      var key = PHASES[idx].key;
-      if (key === 'sky') enterSkyTargets();
-      else if (key === 'vangogh') enterSwirl();
-      else enterShapeTargets(key);
-      setCaption(key);
-      setDots(idx);
-    }
-    function jumpTo(i) {
-      phaseIdx = i; phaseT0 = performance.now();
-      enterPhase(i);
-    }
-
-    // ---------- 标题 / 指示点 ----------
-    function setCaption(key) {
-      var c = CAPTION[key];
-      captionEl.classList.add('fade');
-      if (captionTimer) clearTimeout(captionTimer);
-      captionTimer = setTimeout(function () {
-        enEl.textContent = c.en; zhEl.textContent = c.zh; descEl.textContent = c.desc;
-        captionEl.classList.remove('fade');
-      }, 400);
-    }
-    function buildDots() {
-      dotsEl.innerHTML = '';
-      dots = [];
-      PHASES.forEach(function (ph, i) {
-        var s = document.createElement('span');
-        s.addEventListener('click', function () { jumpTo(i); });
-        dotsEl.appendChild(s); dots.push(s);
-      });
-    }
-    function setDots(idx) {
-      dots.forEach(function (d, i) { d.classList.toggle('active', i === idx); });
-    }
-
-    // ---------- 主循环 ----------
-    function frame(now) {
-      if (!phaseT0) phaseT0 = now;
-      if (!last) last = now;
-      var dt = Math.min((now - last) / 16.667, 3);
-      last = now;
-      var ph = PHASES[phaseIdx];
-      var local = now - phaseT0;
-      if (local >= phaseDur(ph)) {
-        phaseIdx = (phaseIdx + 1) % PHASES.length;
-        phaseT0 = now;
-        enterPhase(phaseIdx);
-        ph = PHASES[phaseIdx]; local = 0;
-      }
-      var atHero = window.scrollY < H * .55;
-      var key = atHero ? ph.key : 'calm';
-
-      if (key === 'vangogh') {
-        drawVgBg(vgFirst); vgFirst = false;
-        updateSwirl(dt, now);
-        drawSwirl(now);
-        skylineTarget = 0;
-      } else if (key === 'calm') {
-        drawNightBg();
-        updateCalm(dt, now);
-        drawPoints();
-        skylineTarget = 0;
-      } else {
-        drawNightBg();
-        updateSprings(dt, now, key, local, ph);
-        drawPoints();
-        skylineTarget = key === 'sky' ? 1 : .82;
-      }
-      skylineAlpha += (skylineTarget - skylineAlpha) * .07 * dt;
-      if (skylineAlpha > .02) drawSkyline(skylineAlpha);
-      raf = requestAnimationFrame(frame);
-    }
-
-    // ---------- 尺寸 / 可见性 ----------
     function resize() {
       DPR = Math.min(window.devicePixelRatio || 1, 2);
-      W = window.innerWidth; H = window.innerHeight;
+      W = window.innerWidth;
+      H = window.innerHeight;
       canvas.width = Math.round(W * DPR);
       canvas.height = Math.round(H * DPR);
       canvas.style.width = W + 'px';
       canvas.style.height = H + 'px';
       ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-      var m = Math.min(W, H);
-      centers = [
-        { x: W * .26, y: H * .40, r: m * .34 },
-        { x: W * .58, y: H * .32, r: m * .27 },
-        { x: W * .86, y: H * .56, r: m * .22 }
-      ];
-      buildWinDots();
-      buildParticles();
-      skylineAlpha = 0;
-      enterPhase(phaseIdx);
+      spawn();
+      if (reduced) paint(0, 1);
     }
+
+    /* ===== 圆弧流星 ===== */
+    function spawnMeteorRound(now) {
+      var count = 5 + Math.floor(Math.random() * 6); // 每轮5-10颗
+      for (var i = 0; i < count; i++) {
+        var fromLeft = Math.random() < 0.5;
+        var startX = fromLeft
+          ? Math.random() * W * 0.45
+          : W * 0.55 + Math.random() * W * 0.45;
+        var startY = -20 + Math.random() * H * 0.22;
+        var endX = fromLeft
+          ? W * 0.45 + Math.random() * W * 0.55
+          : Math.random() * W * 0.55;
+        var endY = H * 0.45 + Math.random() * H * 0.5;
+
+        // 控制点：垂直于路径方向偏移，形成圆弧
+        var dx = endX - startX;
+        var dy = endY - startY;
+        var len = Math.sqrt(dx * dx + dy * dy) || 1;
+        var perpX = -dy / len;
+        var perpY = dx / len;
+        var curve = (0.12 + Math.random() * 0.3) * len;
+        var side = Math.random() < 0.5 ? 1 : -1;
+        var ctrlX = (startX + endX) / 2 + perpX * curve * side;
+        var ctrlY = (startY + endY) / 2 + perpY * curve * side;
+
+        meteors.push({
+          x0: startX, y0: startY,
+          cx: ctrlX, cy: ctrlY,
+          x1: endX, y1: endY,
+          startTime: now + Math.random() * 900, // 错峰0-0.9s
+          duration: 4600 + Math.random() * 900,  // 单颗约5s（4.6-5.5s）
+          size: 1.1 + Math.random() * 1.1,
+          blue: Math.random() < 0.35,
+          brightness: 0.55 + Math.random() * 0.45
+        });
+      }
+    }
+
+    function bezier(p, m) {
+      var u = 1 - p;
+      return {
+        x: u * u * m.x0 + 2 * u * p * m.cx + p * p * m.x1,
+        y: u * u * m.y0 + 2 * u * p * m.cy + p * p * m.y1
+      };
+    }
+
+    function drawMeteors(now) {
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter'; // 叠加发光
+      var pal = palette();
+      for (var i = meteors.length - 1; i >= 0; i--) {
+        var m = meteors[i];
+        if (now < m.startTime) continue;
+        var p = (now - m.startTime) / m.duration;
+        if (p >= 1) { meteors.splice(i, 1); continue; }
+
+        var head = bezier(p, m);
+        var trailP = Math.max(0, p - 380 / m.duration); // 尾迹约0.38s
+        var tail = bezier(trailP, m);
+
+        // 淡入淡出
+        var alpha = m.brightness;
+        if (p < 0.08) alpha *= p / 0.08;
+        if (p > 0.82) alpha *= (1 - p) / 0.18;
+        if (alpha <= 0.01) continue;
+
+        var headRGB = m.blue ? pal.meteorBlue : pal.meteorWhite;
+
+        // 渐变尾迹
+        var grad = ctx.createLinearGradient(tail.x, tail.y, head.x, head.y);
+        grad.addColorStop(0, pal.trail);
+        grad.addColorStop(0.55, 'rgba(' + headRGB + ',' + (alpha * 0.3).toFixed(3) + ')');
+        grad.addColorStop(1, 'rgba(' + headRGB + ',' + alpha.toFixed(3) + ')');
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = m.size;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(tail.x, tail.y);
+        ctx.lineTo(head.x, head.y);
+        ctx.stroke();
+
+        // 头部光晕
+        ctx.beginPath();
+        ctx.arc(head.x, head.y, m.size * 2.2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(' + headRGB + ',' + (alpha * 0.18).toFixed(3) + ')';
+        ctx.fill();
+
+        // 亮核
+        ctx.beginPath();
+        ctx.arc(head.x, head.y, m.size * 0.65, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(' + pal.meteorWhite + ',' + (alpha * 0.9).toFixed(3) + ')';
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function palette() {
+      return document.documentElement.getAttribute('data-theme') === 'light'
+        ? { star: '43,63,100', blue: '36,86,214', glow: '36,86,214', glowA: '0.045', meteorBlue: '36,86,214', meteorWhite: '43,63,100', trail: 'rgba(36,86,214,0)' }
+        : { star: '242,246,252', blue: '109,150,255', glow: '61,123,255', glowA: '0.05', meteorBlue: '140,175,255', meteorWhite: '255,255,255', trail: 'rgba(61,123,255,0)' };
+    }
+
+    function paint(now, dt) {
+      if (!dt) dt = 1;
+      ctx.clearRect(0, 0, W, H);
+
+      var pal = palette();
+
+      // 光标处的幽蓝光晕：深渊对访客的回应
+      var gx = mouse.x * W;
+      var gy = mouse.y * H;
+      var glowR = Math.max(W, H) * 0.45;
+      var glow = ctx.createRadialGradient(gx, gy, 0, gx, gy, glowR);
+      glow.addColorStop(0, 'rgba(' + pal.glow + ',' + pal.glowA + ')');
+      glow.addColorStop(1, 'rgba(' + pal.glow + ',0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, W, H);
+
+      // 鼠标平滑跟随
+      var ease = 1 - Math.pow(0.92, dt);
+      mouse.x += (mouse.tx - mouse.x) * ease;
+      mouse.y += (mouse.ty - mouse.y) * ease;
+
+      var shift = 26;
+      for (var i = 0; i < stars.length; i++) {
+        var s = stars[i];
+
+        // 缓慢下沉，营造深渊感
+        s.y += 0.012 * s.depth * dt;
+        if (s.y > H + 3) s.y -= H + 6;
+
+        var tw = s.base + Math.sin(now * 0.0011 * s.speed + s.phase) * 0.11;
+        if (tw < 0.05) tw = 0.05;
+
+        // 按深度视差，近的星随鼠标移动更多
+        var px = s.x + (mouse.x - 0.5) * 2 * s.depth * shift;
+        var py = s.y + (mouse.y - 0.5) * 2 * s.depth * shift * 0.7;
+
+        ctx.beginPath();
+        ctx.arc(px, py, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = s.blue
+          ? 'rgba(' + pal.blue + ',' + tw.toFixed(3) + ')'
+          : 'rgba(' + pal.star + ',' + tw.toFixed(3) + ')';
+        ctx.fill();
+      }
+
+      // 圆弧流星（叠加在星空之上）
+      drawMeteors(now);
+    }
+
+    function loop(now) {
+      if (!last) last = now;
+      var dt = Math.min((now - last) / 16.667, 3);
+      last = now;
+
+      // 每5秒触发一轮流星（第一轮约2秒后出现）
+      if (!lastRound) lastRound = now - 3000;
+      if (now - lastRound >= ROUND_INTERVAL) {
+        lastRound = now;
+        spawnMeteorRound(now);
+      }
+
+      paint(now, dt);
+      raf = window.requestAnimationFrame(loop);
+    }
+
+    function onMove(e) {
+      mouse.tx = e.clientX / W;
+      mouse.ty = e.clientY / H;
+    }
+
     function onVisibility() {
       if (document.hidden) {
-        if (raf) { cancelAnimationFrame(raf); raf = null; }
+        if (raf) { window.cancelAnimationFrame(raf); raf = null; }
       } else if (!reduced && !raf) {
         last = 0;
-        raf = requestAnimationFrame(frame);
+        lastRound = 0; // 切回标签页后重新计时
+        raf = window.requestAnimationFrame(loop);
       }
     }
 
-    function staticPaint() {
-      drawNightBg();
-      enterSkyTargets();
-      for (var i = 0; i < N; i++) {
-        var p = particles[i];
-        p.x = p.tx; p.y = p.ty; p.cr = p.tcr; p.cg = p.tcg; p.cb = p.tcb; p.a = p.ta;
-      }
-      drawPoints();
-      drawSkyline(1);
-    }
+    window.addEventListener('resize', resize);
+    window.addEventListener('mousemove', onMove);
+    document.addEventListener('visibilitychange', onVisibility);
 
-    // ---------- 启动 ----------
-    function init() {
-      buildDots();
-      window.addEventListener('resize', resize);
-      document.addEventListener('visibilitychange', onVisibility);
-      resize();
-      if (reduced) { staticPaint(); return; }
-      raf = requestAnimationFrame(frame);
-    }
+    // 入场幕布拉开时，用一轮流星雨庆祝
+    window.addEventListener('atouop:bootdone', function () {
+      if (reduced) return;
+      spawnMeteorRound(performance.now());
+    });
 
-    var keys = Object.keys(SHAPES), loaded = 0;
-    (function next() {
-      if (loaded >= keys.length) { init(); return; }
-      var key = keys[loaded++];
-      sampleShape(key).then(function (pts) {
-        SHAPES[key].pts = pts;
-        next();
-      });
-    })();
+    resize();
+    if (!reduced) raf = window.requestAnimationFrame(loop);
   })();
 </script>
-
 
 <script>
   // ===== 主题切换（深色 / 浅色） =====
@@ -3198,8 +2582,7 @@
     }
     var now0 = new Date();
     var doy = Math.floor((now0 - new Date(now0.getFullYear(), 0, 0)) / 86400000);
-    var pinnedQuote = load('atouop:pinquote', null);
-    quoteShow(pinnedQuote == null ? doy : pinnedQuote);
+    quoteShow(doy);
     el('quote-shuffle').addEventListener('click', function () {
       quoteShow(Math.floor(Math.random() * QUOTES.length));
     });
@@ -3410,19 +2793,9 @@
       } else fallbackCopy();
     });
 
-    function panRecord(raw) {
-      try {
-        var h = load('atouop:panhist', []);
-        if (!Array.isArray(h)) h = [];
-        var plat = (panPlat.textContent || '').trim() || 'Netdisk';
-        h.unshift({ link: raw, platform: plat, ts: Date.now() });
-        if (h.length > 30) h = h.slice(0, 30);
-        store('atouop:panhist', h);
-      } catch (e) {}
-    }
     el('pan-open').addEventListener('click', function () {
       var url = panBuild();
-      if (url) { panRecord(panLink.value.trim()); window.open(url, '_blank', 'noopener'); }
+      if (url) window.open(url, '_blank', 'noopener');
     });
 
     // 一键取直链（Vercel 托管版后端；静态版自动降级）
@@ -3484,7 +2857,6 @@
       panResult.classList.remove('final');
       var btn = this;
       btn.disabled = true;
-      panRecord(raw);
       fetch('/api/parse?url=' + encodeURIComponent(raw) + '&pwd=' + encodeURIComponent(panCode.value) + '&dir=' + encodeURIComponent(el('pan-dir').value.trim()))
         .then(function (r) { return r.json(); })
         .then(function (j) {
@@ -3518,7 +2890,7 @@
     var wakeLock = null;
     var clockRun = false;
     var lastTick = -99999;
-    var clockOffset = load('atouop:clocktz', 480);
+    var clockOffset = 480;
     var particles = [];
     var borderParts = [];
     var CELL = 17, CX0 = 21, CY0 = 134;
@@ -3801,10 +3173,9 @@
       o.textContent = z[1];
       clockZone.appendChild(o);
     });
-    clockZone.value = String(clockOffset);
+    clockZone.value = '480';
     clockZone.addEventListener('change', function () {
       clockOffset = parseInt(clockZone.value, 10) || 0;
-      store('atouop:clocktz', clockOffset);
       particles = [];
       clockTick();
     });
@@ -3818,114 +3189,6 @@
         else if (elm.webkitRequestFullscreen) elm.webkitRequestFullscreen();
       }
     });
-  })();
-</script>
-<script>
-  // ============================================================
-  // 虚拟客服 颺（图2 白狼）：浮动、气泡、关键词问答
-  // ============================================================
-  (function () {
-    var btn = document.getElementById('mascot-btn');
-    var panel = document.getElementById('mascot-panel');
-    var closeBtn = document.getElementById('mascot-close');
-    var bubble = document.getElementById('mascot-bubble');
-    var msgs = document.getElementById('mascot-msgs');
-    var input = document.getElementById('mascot-text');
-    var sendBtn = document.getElementById('mascot-send');
-    var chips = document.getElementById('mascot-chips');
-    if (!btn || !panel) return;
-
-    var opened = false;
-    function scrollBottom() { msgs.scrollTop = msgs.scrollHeight; }
-    function addMsg(t, who) {
-      var d = document.createElement('div');
-      d.className = 'm-msg ' + who;
-      d.textContent = t;
-      msgs.appendChild(d);
-      scrollBottom();
-      return d;
-    }
-    function showTyping() {
-      var d = document.createElement('div');
-      d.className = 'm-msg bot m-typing';
-      d.innerHTML = '<i></i><i></i><i></i>';
-      msgs.appendChild(d);
-      scrollBottom();
-      return d;
-    }
-    function botReply(t) {
-      var typing = showTyping();
-      var delay = 420 + Math.min(t.length * 16, 1050);
-      setTimeout(function () { typing.remove(); addMsg(t, 'bot'); }, delay);
-    }
-    function userSay(t) {
-      t = (t || '').trim();
-      if (!t) return;
-      addMsg(t, 'user');
-      setTimeout(function () { botReply(answer(t)); }, 240);
-    }
-
-    var A = {
-      overview: '整个首屏是一场循环上演的星空秀：先是「北京星空」，星点在京城夜空闪烁；随后粒子汇聚成「真龙现世」；接着画面化为梵高「星月夜」的旋转星河作为过渡；再依次浮现「孔雀开屏」「凤凰腾空」，每幕之间都由梵高式旋涡衔接，最后回到北京星空，循环往复。你也可以点击底部的小圆点直接跳到某一幕。',
-      dragon: '「真龙现世」：你发的蓝色龙首图被读取成数千个粒子目标点，星点汇聚成巨龙的轮廓，正所谓云从龙、星为鳞。龙是祥瑞与力量的象征，一啸千年。',
-      peacock: '「孔雀开屏」：粒子组成正面开屏的孔雀，尾羽展开成巨大的扇形，每根羽毛末端都有彩色眼斑。孔雀开屏象征吉祥、华贵与春意。',
-      phoenix: '「凤凰腾空」：金红色的凤凰展翅升起，尾羽如火焰。凤凰浴火重生，象征新生与希望，扶摇直上九万里。',
-      beasts: '龙、孔雀、凤凰都是中国传统里的瑞兽：龙主祥瑞与力量，孔雀象征华贵吉祥，凤凰寓意浴火重生。它们都由星空中的粒子汇聚而成，在京城夜空中依次降临。',
-      vangogh: '「星月夜 · 梵高」是每两幕之间的过渡：粒子沿着几个巨大的旋涡旋转，配色取自梵高名画《星月夜》——深蓝、钴蓝与明黄的星光，还有发光的星点，像把整幅画动了起来。',
-      beijing: '背景是北京的夜空：底部是北京天际线剪影，能看到天安门、天坛、中央电视塔、央视大楼、中国尊、国贸三期和鼓楼。星空在上、京城在下，神兽便在这片夜空里浮现。',
-      about: '站长是 Atouop，坐标昆明，喜欢 Web 开发、设计与一切把想法变成现实的事。这个网页是他的数字角落，安静、专注。往下滚动可以看到「关于」「领域」「作品」等板块。',
-      tools: '顶部导航有个「工具」按钮，点开是站长自制的小工具箱：倒计时、待办清单、随机决定器、绩点计算器、每日一句、像素涂鸦、弹幕墙、网盘助手和世界时钟，数据都保存在你自己的浏览器里。',
-      contact: '想找站长可以发邮件到 3303314252@qq.com，页面底部「联系」板块也有入口。',
-      fallback: '这个问题我还在学习中。你可以问我：页面在演什么、真龙/孔雀/凤凰的含义、梵高星空、站长是谁，或者怎么联系他。点击下面的快捷问题也可以。'
-    };
-
-    function answer(q) {
-      var s = q.toLowerCase();
-      if (/你好|您好|hi|hello|在吗|在不在|嗨/.test(s)) return '你好呀，我是颺，这个站点的智能客服。想看神兽演出，还是想了解站长？随时问我。';
-      if (/你是谁|叫什么|名字|颺|机器人|客服/.test(s)) return '我叫颺，是一只白狼形象的虚拟客服，由站长用 HTML、CSS 和 JavaScript 召唤出来。我可以介绍页面上的每一幕，也能帮你找到站长的联系方式。';
-      if (/梵高|星月夜|油画|旋涡|漩涡|过渡/.test(s)) return A.vangogh;
-      if (/龙、孔雀|孔雀、凤凰|三种|神兽|瑞兽|吉祥/.test(s)) return A.beasts;
-      if (/演什么|在演|什么场景|节目|循环|流程|顺序|有哪些/.test(s)) return A.overview;
-      if (/龙|真龙|dragon/.test(s)) return A.dragon;
-      if (/孔雀|peacock/.test(s)) return A.peacock;
-      if (/凤凰|phoenix|浴火/.test(s)) return A.phoenix;
-      if (/站长|作者|atouop|关于我|个人主页/.test(s)) return A.about;
-      if (/工具|toolbox|工具箱|功能/.test(s)) return A.tools;
-      if (/联系|邮箱|邮件|email|qq|找他|怎么找/.test(s)) return A.contact;
-      if (/北京|星空|夜景|为什么/.test(s)) return A.beijing;
-      if (/谢谢|感谢|多谢|thx|thanks/.test(s)) return '不客气，能帮到你我很开心。祝你今夜也有一片好看的星空。';
-      if (/再见|拜拜|bye|晚安|走了/.test(s)) return '再见呀，颺一直在这里守着，下次路过记得再来看我。';
-      return A.fallback;
-    }
-
-    function openPanel() {
-      panel.classList.add('open');
-      bubble.classList.remove('show');
-      if (!opened) {
-        opened = true;
-        addMsg('你好呀，我是颺，这个站点的智能客服。首屏正上演北京星空与神兽降临，想了解哪一幕？', 'bot');
-      }
-      setTimeout(function () { input.focus(); }, 320);
-    }
-    function closePanel() { panel.classList.remove('open'); }
-
-    btn.addEventListener('click', openPanel);
-    bubble.addEventListener('click', openPanel);
-    closeBtn.addEventListener('click', closePanel);
-    sendBtn.addEventListener('click', function () { userSay(input.value); input.value = ''; });
-    input.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') { userSay(input.value); input.value = ''; }
-    });
-    chips.addEventListener('click', function (e) {
-      var b = e.target.closest('button[data-q]');
-      if (b) userSay(b.getAttribute('data-q'));
-    });
-
-    // 首次气泡问候
-    setTimeout(function () {
-      if (!panel.classList.contains('open')) bubble.classList.add('show');
-    }, 2600);
-    setTimeout(function () { bubble.classList.remove('show'); }, 12000);
   })();
 </script>
 </body>
