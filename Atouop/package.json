@@ -1,0 +1,8 @@
+{
+  "name": "atouop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Atouop personal homepage with netdisk direct-link API",
+  "scripts": {},
+  "dependencies": {}
+}

@@ -1,0 +1,10 @@
+name = "atouop"
+compatibility_date = "2026-10-01"
+pages_build_output_dir = "."
+
+# 访客统计使用的 KV 命名空间
+# 先运行: npx wrangler kv namespace create VISITS
+# 把返回的 id 填到下面，替换 REPLACE_WITH_YOUR_KV_NAMESPACE_ID
+[[kv_namespaces]]
+binding = "VISITS"
+id = "ab342ec271b147068ea9bee00fe84910"
