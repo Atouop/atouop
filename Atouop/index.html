@@ -1636,6 +1636,111 @@
   .w-day .wd-t { font-family: var(--display); font-size: .95rem; font-weight: 600; }
   .w-day .wd-t small { color: var(--muted); font-weight: 400; }
 
+  /* ===== 今日待办（主页组件 + 工具面板） ===== */
+  #today { padding-top: clamp(24px, 5vh, 56px); }
+  .today-card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 10px; overflow: hidden;
+  }
+  .today-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+    padding: 18px 22px; border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(61,123,255,0.08), transparent);
+  }
+  .today-date { font-family: var(--display); font-size: 1.05rem; font-weight: 600; }
+  .today-date small { font-family: var(--mono); font-size: .75rem; color: var(--muted); margin-left: 10px; font-weight: 400; }
+  .today-now {
+    display: flex; align-items: center; gap: 12px; padding: 14px 22px;
+    border-bottom: 1px solid var(--line); font-size: .9rem;
+  }
+  .today-now .tn-badge {
+    font-family: var(--mono); font-size: .72rem; padding: 3px 10px; border-radius: 999px;
+    border: 1px solid var(--line-strong); color: var(--muted); flex: none;
+  }
+  .today-now.live .tn-badge { color: #fff; background: var(--accent); border-color: var(--accent); }
+  .today-now .tn-text { color: var(--text); }
+  .today-now .tn-text small { color: var(--muted); }
+  .today-cols { display: grid; grid-template-columns: 1fr 1fr; }
+  .today-col { padding: 18px 22px; }
+  .today-col:first-child { border-right: 1px solid var(--line); }
+  .today-col-title {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .12em; color: var(--muted);
+    margin-bottom: 12px; display: flex; justify-content: space-between;
+  }
+  .today-class {
+    display: flex; gap: 12px; align-items: flex-start; padding: 9px 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  .today-class:last-child { border-bottom: none; }
+  .tc-time { flex: none; width: 92px; font-family: var(--mono); font-size: .78rem; color: var(--accent); padding-top: 1px; }
+  .tc-time small { display: block; color: var(--muted); font-size: .7rem; }
+  .tc-info { flex: 1; min-width: 0; }
+  .tc-name { font-size: .92rem; font-weight: 500; line-height: 1.35; }
+  .tc-sub { font-size: .76rem; color: var(--muted); margin-top: 2px; }
+  .today-class.ongoing { background: rgba(61,123,255,0.07); margin: 0 -10px; padding-left: 10px; padding-right: 10px; border-radius: 6px; }
+  .today-task {
+    display: flex; gap: 10px; align-items: flex-start; padding: 8px 0;
+    border-bottom: 1px dashed var(--line); cursor: pointer;
+  }
+  .today-task:last-child { border-bottom: none; }
+  .today-task input { accent-color: var(--accent); margin-top: 3px; cursor: pointer; }
+  .tt-text { font-size: .9rem; line-height: 1.4; flex: 1; }
+  .tt-text small { display: block; color: var(--muted); font-size: .72rem; }
+  .today-task.done .tt-text { color: var(--muted); text-decoration: line-through; }
+  .today-empty { font-size: .82rem; color: var(--muted); padding: 6px 0; }
+  .today-foot { padding: 12px 22px; border-top: 1px solid var(--line); display: flex; justify-content: flex-end; }
+  @media (max-width: 720px) {
+    .today-cols { grid-template-columns: 1fr; }
+    .today-col:first-child { border-right: none; border-bottom: 1px solid var(--line); }
+  }
+
+  /* 工具面板内子页签 */
+  .tt-tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+  .tt-tab-btn {
+    font-family: var(--mono); font-size: .78rem; padding: 8px 16px; border-radius: 999px;
+    border: 1px solid var(--line-strong); background: transparent; color: var(--muted); cursor: pointer;
+  }
+  .tt-tab-btn.active { color: #fff; background: var(--accent); border-color: var(--accent); }
+  .tt-tab { display: none; }
+  .tt-tab.active { display: block; animation: panelIn .25s ease; }
+  .tt-note {
+    font-size: .85rem; color: var(--muted); line-height: 1.7; background: var(--bg);
+    border: 1px solid var(--line); border-left: 3px solid var(--accent);
+    border-radius: 6px; padding: 12px 16px; margin-bottom: 16px;
+  }
+  .tt-note b { color: var(--text); }
+  .tt-note code { color: var(--accent); font-size: .82rem; }
+  .tt-import-btns { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  #tt-paste { width: 100%; min-height: 140px; font-size: .8rem; }
+  .tt-msg { font-family: var(--mono); font-size: .82rem; margin-top: 10px; min-height: 18px; }
+  .tt-msg.ok { color: #46c47c; }
+  .tt-msg.err { color: #ff6b6b; }
+  .tt-grid { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: .78rem; }
+  .tt-grid th, .tt-grid td { border: 1px solid var(--line); padding: 6px 8px; vertical-align: top; text-align: left; }
+  .tt-grid th { background: var(--bg); font-family: var(--mono); color: var(--muted); font-weight: 500; text-align: center; }
+  .tt-grid td { min-width: 120px; height: 48px; }
+  .tt-cell { margin-bottom: 6px; padding: 5px 7px; border-radius: 4px; background: rgba(61,123,255,0.10); border-left: 2px solid var(--accent); line-height: 1.4; }
+  .tt-cell:last-child { margin-bottom: 0; }
+  .tt-cell b { font-weight: 600; }
+  .tt-cell span { display: block; color: var(--muted); font-size: .72rem; }
+  .tt-periods { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 12px; }
+  .tt-period {
+    display: flex; align-items: center; gap: 8px; background: var(--bg);
+    border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px;
+  }
+  .tt-period em { font-family: var(--mono); font-style: normal; font-size: .75rem; color: var(--muted); flex: none; min-width: 40px; }
+  .tt-period input { flex: 1; min-width: 0; padding: 6px 8px; font-size: .78rem; min-height: 34px; }
+  .tt-cand {
+    display: flex; gap: 10px; align-items: flex-start; padding: 10px; border: 1px solid var(--line);
+    border-radius: 6px; margin-bottom: 8px;
+  }
+  .tt-cand input { margin-top: 3px; accent-color: var(--accent); }
+  .tt-cand .tt-text { font-size: .88rem; }
+  .tt-cand .tt-due {
+    font-family: var(--mono); font-size: .72rem; color: var(--accent); margin-top: 3px;
+  }
+  #tt-msgs { width: 100%; min-height: 160px; font-size: .82rem; }
+
 </style>
 
   <!-- ===== Umami 访问统计 ===== -->
@@ -1709,6 +1814,36 @@
     <div class="scroll-hint scroll-hint-anim" style="--d:1s" aria-hidden="true">
       <span>scroll</span>
       <span class="bar"></span>
+    </div>
+  </section>
+
+  <!-- ===== 今日待办 ===== -->
+  <section id="today">
+    <div class="wrap">
+      <p class="sec-label reveal">TODAY · 今日待办</p>
+      <div class="today-card reveal">
+        <div class="today-head">
+          <div class="today-date" id="td-date">— <small>加载中…</small></div>
+          <button class="btn btn-ghost btn-sm" id="td-manage" type="button">管理 / 导入</button>
+        </div>
+        <div class="today-now" id="td-now">
+          <span class="tn-badge">—</span>
+          <span class="tn-text">—</span>
+        </div>
+        <div class="today-cols">
+          <div class="today-col">
+            <div class="today-col-title"><span>今日课程</span><span id="td-class-count"></span></div>
+            <div id="td-classes"><div class="today-empty">还没有导入课程表</div></div>
+          </div>
+          <div class="today-col">
+            <div class="today-col-title"><span>今日待办</span><span id="td-task-count"></span></div>
+            <div id="td-tasks"><div class="today-empty">暂无待办</div></div>
+          </div>
+        </div>
+        <div class="today-foot">
+          <button class="btn btn-ghost btn-sm" id="td-quick-add" type="button">+ 快速添加待办</button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1888,6 +2023,12 @@
           <span class="tool-card-no">14</span>
           <span class="tool-card-name">实时天气</span>
           <span class="tool-card-desc">查询城市天气，温度、风力、未来几天</span>
+          <span class="tool-card-arrow">→</span>
+        </button>
+        <button class="tool-card" type="button" data-target="panel-today">
+          <span class="tool-card-no">15</span>
+          <span class="tool-card-name">今日待办</span>
+          <span class="tool-card-desc">导入课程表，筛选班群消息，今日课程与待办一目了然</span>
           <span class="tool-card-arrow">→</span>
         </button>
       </div>
@@ -2194,6 +2335,103 @@
           <div class="w-desc" id="w-desc"></div>
           <div class="w-meta" id="w-meta"></div>
           <div class="w-daily" id="w-daily"></div>
+        </div>
+      </div>
+
+      <!-- 今日待办 -->
+      <div class="tool-panel" id="panel-today">
+        <div class="tool-head">
+          <h3>今日待办</h3>
+          <p>导入课程表、筛选班群消息，今日课程与待办一目了然。课程表导入一次，整个学期有效。</p>
+        </div>
+
+        <div class="tt-tabs">
+          <button class="tt-tab-btn active" data-tt="tt-view" type="button">今日</button>
+          <button class="tt-tab-btn" data-tt="tt-course" type="button">课程表</button>
+          <button class="tt-tab-btn" data-tt="tt-msg" type="button">班群消息</button>
+        </div>
+
+        <!-- 今日 -->
+        <div class="tt-tab active" id="tt-view">
+          <div class="today-now" id="tv-now">
+            <span class="tn-badge">—</span><span class="tn-text">—</span>
+          </div>
+          <div class="today-cols" style="border:1px solid var(--line);border-radius:8px;overflow:hidden">
+            <div class="today-col">
+              <div class="today-col-title"><span>今日课程</span></div>
+              <div id="tv-classes"><div class="today-empty">还没有导入课程表</div></div>
+            </div>
+            <div class="today-col">
+              <div class="today-col-title"><span>今日待办</span></div>
+              <div id="tv-tasks"><div class="today-empty">暂无待办</div></div>
+            </div>
+          </div>
+          <div class="today-col-title" style="margin-top:16px">即将到来（未来到期的待办）</div>
+          <div id="tv-upcoming"></div>
+          <div class="tool-row" style="margin-top:14px">
+            <input class="input grow" id="tv-add" type="text" placeholder="添加一条待办，回车确认" maxlength="80">
+            <button class="btn btn-primary btn-sm" id="tv-add-btn" type="button">添加</button>
+          </div>
+        </div>
+
+        <!-- 课程表 -->
+        <div class="tt-tab" id="tt-course">
+          <div class="tt-note">
+            <b>导入课程表（一学期一次）</b><br>
+            1. 浏览器登录 <code>jwctsp.kust.edu.cn</code>，打开「我的课表」，确保课表已显示；<br>
+            2. 按 <b>F12</b> 打开控制台，粘贴「提取助手」代码并回车，它会自动复制课表 JSON；<br>
+            3. 回到这里，粘贴到下方文本框，点「解析导入」。也可直接粘贴课表文字。
+          </div>
+          <div class="tt-import-btns">
+            <button class="btn btn-ghost btn-sm" id="tt-copy-helper" type="button">复制提取助手代码</button>
+            <button class="btn btn-ghost btn-sm" id="tt-open-jw" type="button">打开教务系统</button>
+          </div>
+          <textarea class="input" id="tt-paste" placeholder="粘贴提取助手输出的 JSON，或直接粘贴课表文字（如：高等数学 张三 A301 1-16周 星期一 1-2节）"></textarea>
+          <div class="tool-row" style="margin-top:12px">
+            <button class="btn btn-primary btn-sm" id="tt-parse" type="button">解析导入</button>
+            <button class="btn btn-ghost btn-sm" id="tt-paste-sample" type="button">填入示例</button>
+            <button class="chip chip-danger" id="tt-clear-course" type="button">清空课程表</button>
+          </div>
+          <div class="tt-msg" id="tt-course-msg"></div>
+
+          <div class="tool-row" style="margin-top:18px">
+            <span class="pwgen-label">开学第一周周一</span>
+            <input class="input" id="tt-sem-start" type="date">
+            <span class="pwgen-label">总周数</span>
+            <input class="input" id="tt-total-weeks" type="number" min="1" max="30" value="18" style="width:80px">
+            <button class="btn btn-ghost btn-sm" id="tt-save-sem" type="button">保存</button>
+          </div>
+
+          <div class="today-col-title" style="margin-top:14px">作息时间表（每节课起止，可按你上传的图片修改）</div>
+          <div class="tt-periods" id="tt-periods"></div>
+
+          <div class="today-col-title" style="margin-top:20px">整周课表预览</div>
+          <div style="overflow-x:auto">
+            <table class="tt-grid">
+              <thead><tr>
+                <th></th><th>周一</th><th>周二</th><th>周三</th><th>周四</th><th>周五</th><th>周六</th><th>周日</th>
+              </tr></thead>
+              <tbody id="tt-grid-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 班群消息 -->
+        <div class="tt-tab" id="tt-msg">
+          <div class="tt-note">
+            在微信里打开班群，复制聊天内容（或长按多选后复制），粘贴到下面，点「智能筛选」，
+            会自动识别作业、截止、通知、考试等待办，并尝试推断日期。
+          </div>
+          <textarea class="input" id="tt-msgs" placeholder="粘贴班群聊天内容…"></textarea>
+          <div class="tool-row" style="margin-top:12px">
+            <button class="btn btn-primary btn-sm" id="tt-filter" type="button">智能筛选</button>
+            <button class="btn btn-ghost btn-sm" id="tt-msg-sample" type="button">填入示例</button>
+          </div>
+          <div id="tt-cands"></div>
+          <div class="tool-row" id="tt-import-row" hidden>
+            <button class="btn btn-primary btn-sm" id="tt-import-tasks" type="button">导入勾选的待办</button>
+          </div>
+          <div class="tt-msg" id="tt-msg-msg"></div>
         </div>
       </div>
 
@@ -4352,7 +4590,535 @@
   })();
 })();
 </script>
+<script>
+// ============================================================
+// 今日待办：课程表 + 班群消息筛选 + 今日视图
+// 数据存储在本机 localStorage；课程表导入一次，整学期有效
+// ============================================================
+(function () {
+  var SCHED_KEY = 'atouop:schedule';
+  var TASK_KEY = 'atouop:todaytasks';
+  var DEFAULT_PERIODS = [
+    ['08:00','08:45'],['08:55','09:40'],['10:00','10:45'],['10:55','11:40'],
+    ['11:50','12:35'],['14:00','14:45'],['14:55','15:40'],['16:00','16:45'],
+    ['16:55','17:40'],['19:00','19:45'],['19:55','20:40'],['20:50','21:35']
+  ].map(function (p) { return { start: p[0], end: p[1] }; });
+  var DEFAULT_SCHED = { semesterStart: '', totalWeeks: 18, periods: DEFAULT_PERIODS, courses: [] };
+  function load(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } }
+  function save(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function dateStr(d) { return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
+  function uid() { return 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 
+  var sched = load(SCHED_KEY, DEFAULT_SCHED);
+  if (!sched.periods || !sched.periods.length) sched.periods = DEFAULT_PERIODS;
+  if (!sched.courses) sched.courses = [];
+  var tasks = load(TASK_KEY, []);
+  function persistSched() { save(SCHED_KEY, sched); }
+  function persistTasks() { save(TASK_KEY, tasks); }
+
+  // ----- 日期 / 周次
+  function weekDayMon1(d) { return (d.getDay() + 6) % 7 + 1; }
+  function currentWeek() {
+    if (!sched.semesterStart) return 0;
+    var p = sched.semesterStart.split('-').map(Number);
+    var st = new Date(p[0], p[1]-1, p[2]);
+    var n = new Date(); n = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+    var days = Math.floor((n - st) / 86400000);
+    return Math.floor(days / 7) + 1;
+  }
+  function courseOn(c, wd, wk) {
+    if (c.weekday !== wd) return false;
+    if (wk && (wk < c.weekStart || wk > c.weekEnd)) return false;
+    if (c.weekType === 'odd' && wk % 2 !== 1) return false;
+    if (c.weekType === 'even' && wk % 2 !== 0) return false;
+    return true;
+  }
+  function todaysCourses() {
+    var d = new Date(), wd = weekDayMon1(d), wk = currentWeek();
+    return sched.courses.filter(function (c) { return courseOn(c, wd, wk); }).sort(function (a, b) { return a.start - b.start; });
+  }
+  function pendingTasks() {
+    var today = dateStr(new Date());
+    return tasks.filter(function (t) { return !t.done && (!t.due || t.due <= today); });
+  }
+  function toMin(hhmm) { var p = hhmm.split(':'); return parseInt(p[0],10)*60 + parseInt(p[1],10); }
+
+  function nowStatus() {
+    var list = todaysCourses();
+    if (!list.length) return { live: false, badge: '今日无课', text: '享受这一天，或去做点喜欢的事' };
+    var hm = new Date().getHours()*60 + new Date().getMinutes();
+    for (var i = 0; i < list.length; i++) {
+      var c = list[i], ps = sched.periods[c.start-1], pe = sched.periods[c.end-1];
+      if (!ps || !pe) continue;
+      var stM = toMin(ps.start), enM = toMin(pe.end);
+      if (hm >= stM && hm < enM)
+        return { live: true, badge: '正在上课', text: esc(c.name) + ' <small>还剩 ' + (enM-hm) + ' 分钟 · ' + ps.start + '~' + pe.end + (c.room?(' · '+esc(c.room)):'') + '</small>' };
+      if (hm < stM)
+        return { live: false, badge: '下一节', text: esc(c.name) + ' <small>' + (stM-hm) + ' 分钟后开始 · ' + ps.start + (c.room?(' · '+esc(c.room)):'') + '</small>' };
+    }
+    return { live: false, badge: '今日课已结束', text: '今天的课都上完啦，辛苦啦' };
+  }
+
+  function classHTML(c, ongoing) {
+    var ps = sched.periods[c.start-1], pe = sched.periods[c.end-1];
+    var st = ps ? ps.start : '', en = pe ? pe.end : '';
+    var sec = '第' + c.start + (c.end !== c.start ? ('-' + c.end) : '') + '节';
+    return '<div class="today-class' + (ongoing ? ' ongoing' : '') + '">'
+      + '<div class="tc-time">' + st + '<small>' + sec + '</small></div>'
+      + '<div class="tc-info"><div class="tc-name">' + esc(c.name) + '</div>'
+      + '<div class="tc-sub">' + esc([c.room, c.teacher].filter(Boolean).join(' · ')) + '</div></div></div>';
+  }
+  function fmtDue(d) {
+    var today = dateStr(new Date()), tmr = dateStr(new Date(Date.now()+86400000));
+    if (d === today) return '今天';
+    if (d === tmr) return '明天';
+    return d;
+  }
+  function taskHTML(t, del) {
+    return '<div class="today-task' + (t.done?' done':'') + '">'
+      + '<input type="checkbox" data-act="toggle" data-id="' + t.id + '"' + (t.done?' checked':'') + '>'
+      + '<div class="tt-text" data-act="toggle" data-id="' + t.id + '">' + esc(t.text)
+      + (t.due ? '<small>' + esc(fmtDue(t.due)) + '</small>' : '') + '</div>'
+      + (del ? '<button class="chip chip-danger" data-act="del" data-id="' + t.id + '">删</button>' : '') + '</div>';
+  }
+
+  function isOngoing(c) {
+    var ps = sched.periods[c.start-1], pe = sched.periods[c.end-1];
+    if (!ps || !pe) return false;
+    var hm = new Date().getHours()*60 + new Date().getMinutes();
+    return hm >= toMin(ps.start) && hm < toMin(pe.end);
+  }
+
+  function renderAll() {
+    var d = new Date();
+    var wk = currentWeek();
+    var wdNames = ['周日','周一','周二','周三','周四','周五','周六'];
+    var head = d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日 · ' + wdNames[d.getDay()]
+      + (wk ? (' · 第 ' + wk + ' 周') : ' · 未设置开学日期');
+    var dateEl = document.getElementById('td-date');
+    if (dateEl) dateEl.innerHTML = esc(head.split(' · ')[0]) + '<small>' + esc(head.split(' · ').slice(1).join(' · ')) + '</small>';
+
+    var st = nowStatus();
+    [['td-now'],['tv-now']].forEach(function (pair) {
+      var box = document.getElementById(pair[0]);
+      if (!box) return;
+      box.className = 'today-now' + (st.live ? ' live' : '');
+      box.innerHTML = '<span class="tn-badge">' + esc(st.badge) + '</span><span class="tn-text">' + st.text + '</span>';
+    });
+
+    var cs = todaysCourses();
+    var classInner = cs.length ? cs.map(function (c) { return classHTML(c, isOngoing(c)); }).join('') : '<div class="today-empty">' + (sched.courses.length ? '今天没课' : '还没有导入课程表') + '</div>';
+    var taskList = pendingTasks();
+    var taskInnerHome = taskList.length ? taskList.map(function (t) { return taskHTML(t, false); }).join('') : '<div class="today-empty">暂无待办</div>';
+    var taskInnerPanel = taskList.length ? taskList.map(function (t) { return taskHTML(t, true); }).join('') : '<div class="today-empty">暂无待办</div>';
+
+    var todayNow = dateStr(new Date());
+    var upcoming = tasks.filter(function(t){return !t.done && t.due && t.due > todayNow;}).sort(function(a,b){return a.due < b.due ? -1 : 1;});
+    var vu = document.getElementById('tv-upcoming');
+    if (vu) vu.innerHTML = upcoming.length ? upcoming.map(function(t){return taskHTML(t, true);}).join('') : '<div class="today-empty">没有未来到期的待办</div>';
+    var hc = document.getElementById('td-classes'); if (hc) hc.innerHTML = classInner;
+    var ht = document.getElementById('td-tasks'); if (ht) ht.innerHTML = taskInnerHome;
+    var vc = document.getElementById('tv-classes'); if (vc) vc.innerHTML = classInner;
+    var vt = document.getElementById('tv-tasks'); if (vt) vt.innerHTML = taskInnerPanel;
+    var cc = document.getElementById('td-class-count'); if (cc) cc.textContent = cs.length ? (cs.length + ' 节') : '';
+    var _parts = [];
+    if (taskList.length) _parts.push(taskList.length + ' 项');
+    if (upcoming.length) _parts.push('近期 ' + upcoming.length);
+    var tc = document.getElementById('td-task-count'); if (tc) tc.textContent = _parts.join(' · ');
+  }
+
+  // ----- 任务勾选 / 删除（事件委托）
+  function bindTaskBox(id) {
+    var box = document.getElementById(id);
+    if (!box) return;
+    box.addEventListener('click', function (e) {
+      var node = e.target.closest('[data-act]');
+      if (!node) return;
+      var act = node.getAttribute('data-act'), tid = node.getAttribute('data-id');
+      var t = tasks.find(function (x) { return x.id === tid; });
+      if (!t) return;
+      if (act === 'toggle') { t.done = !t.done; persistTasks(); renderAll(); }
+      else if (act === 'del') { tasks = tasks.filter(function (x) { return x.id !== tid; }); persistTasks(); renderAll(); }
+    });
+  }
+  bindTaskBox('td-tasks'); bindTaskBox('tv-tasks'); bindTaskBox('tv-upcoming');
+
+  // 添加任务
+  function addTask(text, due) {
+    text = (text || '').trim();
+    if (!text) return;
+    tasks.push({ id: uid(), text: text, due: due || null, done: false, src: '手动', ts: Date.now() });
+    persistTasks(); renderAll();
+  }
+  var tvAdd = document.getElementById('tv-add');
+  function tvAddGo() { addTask(tvAdd.value); tvAdd.value = ''; }
+  document.getElementById('tv-add-btn').addEventListener('click', tvAddGo);
+  tvAdd.addEventListener('keydown', function (e) { if (e.key === 'Enter') tvAddGo(); });
+  document.getElementById('td-quick-add').addEventListener('click', function () {
+    var card = document.querySelector('.tool-card[data-target=panel-today]');
+    if (card) card.click();
+    setTimeout(function () { document.getElementById('tv-add').focus(); }, 300);
+  });
+  document.getElementById('td-manage').addEventListener('click', function () {
+    var card = document.querySelector('.tool-card[data-target=panel-today]');
+    if (card) card.click();
+  });
+
+  // ----- 子页签
+  document.querySelectorAll('.tt-tab-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var key = btn.getAttribute('data-tt');
+      document.querySelectorAll('.tt-tab-btn').forEach(function (b) { b.classList.toggle('active', b === btn); });
+      document.querySelectorAll('.tt-tab').forEach(function (t) { t.classList.toggle('active', t.id === key); });
+      if (key === 'tt-course') { renderPeriods(); renderGrid(); }
+    });
+  });
+
+  // ----- 作息时间编辑器
+  function renderPeriods() {
+    var box = document.getElementById('tt-periods');
+    if (!box) return;
+    box.innerHTML = '';
+    sched.periods.forEach(function (p, i) {
+      var div = document.createElement('div');
+      div.className = 'tt-period';
+      div.innerHTML = '<em>第' + (i+1) + '节</em>'
+        + '<input type="time" value="' + p.start + '" data-act="pstart" data-i="' + i + '">'
+        + '<input type="time" value="' + p.end + '" data-act="pend" data-i="' + i + '">'
+        + '<button class="chip chip-danger" data-act="pdel" data-i="' + i + '">删</button>';
+      box.appendChild(div);
+    });
+  }
+  document.getElementById('tt-periods').addEventListener('change', function (e) {
+    var node = e.target.closest('[data-act]'); if (!node) return;
+    var i = parseInt(node.getAttribute('data-i'), 10), act = node.getAttribute('data-act');
+    if (act === 'pstart') sched.periods[i].start = node.value;
+    if (act === 'pend') sched.periods[i].end = node.value;
+    persistSched(); renderGrid(); renderAll();
+  });
+  document.getElementById('tt-periods').addEventListener('click', function (e) {
+    var node = e.target.closest('[data-act=pdel]'); if (!node) return;
+    var i = parseInt(node.getAttribute('data-i'), 10);
+    sched.periods.splice(i, 1); persistSched(); renderPeriods(); renderGrid(); renderAll();
+  });
+
+  // ----- 整周课表
+  function renderGrid() {
+    var body = document.getElementById('tt-grid-body');
+    if (!body) return;
+    var html = '';
+    for (var pi = 1; pi <= sched.periods.length; pi++) {
+      var p = sched.periods[pi-1];
+      html += '<tr><th style="text-align:center">' + pi + '<br><span style="font-weight:400;color:var(--muted)">' + esc(p.start) + '</span></th>';
+      for (var wd = 1; wd <= 7; wd++) {
+        var cells = sched.courses.filter(function (c) { return c.weekday === wd && c.start === pi; });
+        html += '<td>' + cells.map(function (c) {
+          return '<div class="tt-cell"><b>' + esc(c.name) + '</b><span>' + esc([c.room, c.teacher, c.weekStart + '-' + c.weekEnd + '周'].filter(Boolean).join(' · ')) + '</span></div>';
+        }).join('') + '</td>';
+      }
+      html += '</tr>';
+    }
+    body.innerHTML = html;
+  }
+
+  // 学期设置
+  var semStart = document.getElementById('tt-sem-start');
+  var totalWeeks = document.getElementById('tt-total-weeks');
+  semStart.value = sched.semesterStart || '';
+  totalWeeks.value = sched.totalWeeks;
+  document.getElementById('tt-save-sem').addEventListener('click', function () {
+    sched.semesterStart = semStart.value;
+    sched.totalWeeks = parseInt(totalWeeks.value, 10) || 18;
+    persistSched(); renderAll();
+    setMsg('tt-course-msg', true, '✓ 学期信息已保存');
+  });
+
+  function setMsg(id, ok, text) {
+    var m = document.getElementById(id);
+    m.className = 'tt-msg ' + (ok ? 'ok' : 'err');
+    m.textContent = text;
+  }
+
+  // ---------- 课程表导入 ----------
+  function nameOf(v) {
+    if (!v) return '';
+    if (typeof v === 'string') return v;
+    if (Array.isArray(v)) return v.map(function (x) { return nameOf(x); }).filter(Boolean).join(',');
+    if (typeof v === 'object') return v.name || v.teacherName || v.roomName || v.text || v.courseName || '';
+    return '';
+  }
+  function num(v) { var n = parseInt(v, 10); return isNaN(n) ? 0 : n; }
+  function mapLesson(x) {
+    function get() {
+      for (var i = 0; i < arguments.length; i++) { var v = x[arguments[i]]; if (v !== undefined && v !== null && v !== '') return v; }
+      return '';
+    }
+    var weekday = num(get('weekday','dayOfWeek','day','weekDay'));
+    var start = num(get('startUnit','startSection','startPeriod','start','beginUnit','sectionStart','beginSection'));
+    var end = num(get('endUnit','endSection','endPeriod','end','sectionEnd','endUnitNo'));
+    if (!end) end = start;
+    var name = get('courseName','course_name','name','course','kcmc','courseNameZh');
+    var teacher = nameOf(get('teacherName','teacher','teachers','teacherNameZh','skjs'));
+    var room = nameOf(get('room','roomName','rooms','classroom','jxl','jsmc','roomNameZh'));
+    var weekStart = 0, weekEnd = 0, weekType = 'all';
+    var weekJson = get('weekJson','weekState','weekDescription','weekStateString','zcbf');
+    if (typeof weekJson === 'string' && /^[01]+$/.test(weekJson)) {
+      var ones = [];
+      for (var s = 0; s < weekJson.length; s++) if (weekJson[s] === '1') ones.push(s+1);
+      if (ones.length) {
+        weekStart = ones[0]; weekEnd = ones[ones.length-1];
+        if (ones.length > 1 && ones.every(function(n){return n%2===1;})) weekType = 'odd';
+        else if (ones.length > 1 && ones.every(function(n){return n%2===0;})) weekType = 'even';
+      }
+    } else {
+      var weeks = get('weeks','weekList');
+      if (Array.isArray(weeks) && weeks.length) {
+        var nums = weeks.map(Number).filter(function (n) { return !isNaN(n); });
+        if (nums.length) { weekStart = Math.min.apply(null, nums); weekEnd = Math.max.apply(null, nums); }
+      }
+      if (!weekStart) {
+        weekStart = num(get('beginWeek','startWeek','weekStart','weekBegin'));
+        weekEnd = num(get('endWeek','weekEnd','weekFinish'));
+      }
+      var wt = get('weekType','weekFlag','weekStateType');
+      if (/单|odd/i.test(wt)) weekType = 'odd';
+      else if (/双|even/i.test(wt)) weekType = 'even';
+    }
+    if (!weekStart) { weekStart = 1; weekEnd = sched.totalWeeks || 18; }
+    if (!weekday || !start || !name) return null;
+    return { id: uid(), name: String(name), teacher: String(teacher), room: String(room),
+      weekday: weekday, start: start, end: end, weekStart: weekStart, weekEnd: weekEnd, weekType: weekType };
+  }
+  function deepFindLessons(root) {
+    var found = [];
+    function walk(o) {
+      if (Array.isArray(o)) {
+        var looks = o.length && o.every(function (x) {
+          return x && typeof x === 'object' && (x.courseName || x.course_name || x.name || x.course || x.kcmc);
+        });
+        if (looks) found.push(o);
+        o.forEach(walk);
+      } else if (o && typeof o === 'object') {
+        Object.keys(o).forEach(function (k) { walk(o[k]); });
+      }
+    }
+    walk(root);
+    found.sort(function (a, b) { return b.length - a.length; });
+    return found;
+  }
+  function importJSON(text) {
+    var data;
+    try { data = JSON.parse(text); } catch (e) { return 0; }
+    var arrays = deepFindLessons(data);
+    var count = 0;
+    arrays.forEach(function (arr) {
+      arr.forEach(function (x) {
+        var c = mapLesson(x);
+        if (c) { sched.courses.push(c); count++; }
+      });
+    });
+    return count;
+  }
+
+  // ----- 课表文字解析
+  var CN_NUM = { '一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'日':7,'天':7 };
+  function parseTextLine(line) {
+    var raw = line.trim();
+    if (!raw) return null;
+    var weekStart = 1, weekEnd = sched.totalWeeks || 18, weekType = 'all';
+    var wm = raw.match(/(\d{1,2})\s*[-~到至]\s*(\d{1,2})\s*周/);
+    if (wm) { weekStart = +wm[1]; weekEnd = +wm[2]; }
+    else { var w1 = raw.match(/(\d{1,2})\s*周/); if (w1) { weekStart = weekEnd = +w1[1]; } }
+    if (/单周/.test(raw)) weekType = 'odd';
+    if (/双周/.test(raw)) weekType = 'even';
+    var wd = 0;
+    var dm = raw.match(/(?:星期|周)\s*([一二三四五六七天日])/);
+    if (dm) wd = CN_NUM[dm[1]];
+    var start = 0, end = 0;
+    var sm = raw.match(/(\d{1,2})\s*[-~到至]\s*(\d{1,2})\s*节/);
+    if (sm) { start = +sm[1]; end = +sm[2]; }
+    else { var s1 = raw.match(/(\d{1,2})\s*节/); if (s1) start = end = +s1[1]; }
+    if (!wd || !start) return null;
+    // 去掉已识别片段，剩余分词
+    var rest = raw
+      .replace(/(\d{1,2}\s*[-~到至]\s*)?\d{1,2}\s*周[单双]?/, ' ')
+      .replace(/(?:星期|周)\s*[一二三四五六七天日]/, ' ')
+      .replace(/(\d{1,2}\s*[-~到至]\s*)?\d{1,2}\s*节/, ' ')
+      .replace(/[（(].*?[)）]/g, ' ');
+    var tokens = rest.split(/[\s,，、]+/).filter(Boolean);
+    var room = '', teacher = '', name = '';
+    if (tokens.length >= 3) {
+      room = tokens[tokens.length-1]; teacher = tokens[tokens.length-2]; name = tokens.slice(0, -2).join(' ');
+    } else if (tokens.length === 2) {
+      if (/楼|室|馆|教|号|\d/.test(tokens[1])) { room = tokens[1]; name = tokens[0]; }
+      else { teacher = tokens[1]; name = tokens[0]; }
+    } else { name = tokens[0] || raw; }
+    return { id: uid(), name: name, teacher: teacher, room: room, weekday: wd,
+      start: start, end: end || start, weekStart: weekStart, weekEnd: weekEnd, weekType: weekType };
+  }
+  function importText(text) {
+    var lines = text.split(/\n|;|；/);
+    var count = 0;
+    lines.forEach(function (l) {
+      var c = parseTextLine(l);
+      if (c) { sched.courses.push(c); count++; }
+    });
+    return count;
+  }
+
+  document.getElementById('tt-parse').addEventListener('click', function () {
+    var text = document.getElementById('tt-paste').value.trim();
+    if (!text) { setMsg('tt-course-msg', false, '请先粘贴内容'); return; }
+    var n = 0;
+    if (text[0] === '{' || text[0] === '[') {
+      try { n = importJSON(text); } catch (e) { n = 0; }
+      if (!n) n = importText(text);
+    } else { n = importText(text); }
+    persistSched(); renderGrid(); renderAll();
+    if (n) setMsg('tt-course-msg', true, '✓ 成功导入 ' + n + ' 门课程');
+    else setMsg('tt-course-msg', false, '没有解析出课程，请检查格式或用提取助手');
+  });
+  document.getElementById('tt-clear-course').addEventListener('click', function () {
+    sched.courses = []; persistSched(); renderGrid(); renderAll();
+    setMsg('tt-course-msg', true, '已清空课程表');
+  });
+  document.getElementById('tt-open-jw').addEventListener('click', function () {
+    window.open('https://jwctsp.kust.edu.cn/integration/for-std/course-table', '_blank');
+  });
+
+  // ----- 提取助手（复制到剪贴板，在教务页面控制台运行）
+  var HELPER = [
+    '(async function(){',
+    'var urls=performance.getEntriesByType("resource").map(function(e){return e.name;});',
+    'var cand=Array.from(new Set(urls.filter(function(u){return /course|table|lesson|schedule|kb|课表/i.test(u)&&!/\\.(js|css|png|jpg|svg|woff2?|ico|map)(\\?|$)/i.test(u);}));',
+    'var raw=null;',
+    'for(var i=0;i<cand.length;i++){try{var r=await fetch(cand[i],{credentials:"include"});var t=await r.text();var j;try{j=JSON.parse(t);}catch(e){continue;}',
+    'if(/courseName|course_name|kcmic|kcmc|课程名|lesson/i.test(t)){raw=j;break;}}catch(e){}}',
+    'if(!raw){for(var i=0;i<cand.length;i++){try{var r=await fetch(cand[i],{credentials:"include"});var j=await r.json();if(j){raw=j;break;}}catch(e){}}}',
+    'if(!raw){alert("没有找到课表数据：请确认课表已显示（可切换周次）后重试");return;}',
+    'var out=JSON.stringify(raw);',
+    'try{await navigator.clipboard.writeText(out);}catch(e){}',
+    'var b=new Blob([out],{type:"application/json"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="kust-course-raw.json";a.click();',
+    'alert("课表数据已提取（"+out.length+" 字符），已复制并下载，回到 Atouop 粘贴导入。");',
+    '})();'
+  ].join('\n');
+  document.getElementById('tt-copy-helper').addEventListener('click', function () {
+    function ok() { setMsg('tt-course-msg', true, '✓ 提取助手已复制，去教务页面 F12 控制台粘贴运行'); }
+    if (navigator.clipboard && navigator.clipboard.writeText)
+      navigator.clipboard.writeText(HELPER).then(ok).catch(function () { window.prompt('复制下面代码：', HELPER); });
+    else window.prompt('复制下面代码：', HELPER);
+  });
+
+  // ----- 班群消息筛选
+  var TASK_KW = ['作业','提交','上交','完成','预习','复习','背诵','默写','准备','带','穿','集合','报名','缴费','填写','上传','打印','签到','考试','测验','测试','演讲','汇报','答辩','选课','申请','盖章','阅读','截止','务必','通知','安排','注意','回答','写','做','看','交'];
+  var NOISE = /^(\[.+\]|收到|好的|谢谢|不谢|不客气|嗯+|哦+|哈哈+|好嘞|对的|是的|可以|收到了|谢谢老师|感谢)[\s!！.。~]*$/;
+  function stripMeta(line) {
+    return line
+      .replace(/^\s*\S{1,12}\s+\d{1,4}[-/.]\d{1,2}[-/.]\d{1,2}[\s\d:]*\s*/, '')
+      .replace(/^\s*\S{1,12}\s+\d{1,2}:\d{2}(:\d{2})?\s*/, '')
+      .replace(/^[—\-=]+\s*/, '').trim();
+  }
+  function isTask(line) {
+    if (line.length < 3) return false;
+    if (NOISE.test(line)) return false;
+    if (/^\[.+\]$/.test(line)) return false;
+    return TASK_KW.some(function (k) { return line.indexOf(k) >= 0; });
+  }
+  function inferDue(line) {
+    function add(n) { return dateStr(new Date(Date.now() + n*86400000)); }
+    if (/今天|今晚|今日/.test(line)) return add(0);
+    if (/明天|明晚/.test(line)) return add(1);
+    if (/后天/.test(line)) return add(2);
+    var m = /(?:星期|周)\s*([一二三四五六天日])/.exec(line);
+    if (m) {
+      var t = CN_NUM[m[1]], cur = weekDayMon1(new Date());
+      var diff = (t - cur + 7) % 7; if (diff === 0) diff = 7;
+      return add(diff);
+    }
+    var d2 = /(\d{1,2})\s*月\s*(\d{1,2})\s*[日号]/.exec(line);
+    if (d2) {
+      var mm = +d2[1], dd = +d2[2], y = new Date().getFullYear();
+      var cand = new Date(y, mm-1, dd);
+      if (cand < new Date()) cand = new Date(y+1, mm-1, dd);
+      return dateStr(cand);
+    }
+    return null;
+  }
+  var candidates = [];
+  document.getElementById('tt-filter').addEventListener('click', function () {
+    var text = document.getElementById('tt-msgs').value;
+    var lines = text.split(/\n/).map(stripMeta).filter(Boolean);
+    candidates = [];
+    var seen = {};
+    lines.forEach(function (l) {
+      if (!isTask(l)) return;
+      if (seen[l]) return; seen[l] = true;
+      candidates.push({ text: l, due: inferDue(l), pick: true });
+    });
+    renderCands();
+    setMsg('tt-msg-msg', !!candidates.length, candidates.length ? ('识别出 ' + candidates.length + ' 条待办，可勾选后导入') : '没有识别出待办，可手动添加');
+  });
+  function renderCands() {
+    var box = document.getElementById('tt-cands');
+    box.innerHTML = candidates.map(function (c, i) {
+      return '<div class="tt-cand"><input type="checkbox" data-act="cpick" data-i="' + i + '"' + (c.pick?' checked':'') + '>'
+        + '<div class="tt-text">' + esc(c.text) + (c.due ? '<div class="tt-due">截止/时间：' + esc(fmtDue(c.due)) + '（' + c.due + '）</div>' : '<div class="tt-due">未识别到日期</div>') + '</div></div>';
+    }).join('');
+    document.getElementById('tt-import-row').hidden = !candidates.length;
+  }
+  document.getElementById('tt-cands').addEventListener('click', function (e) {
+    var node = e.target.closest('[data-act=cpick]');
+    if (!node) return;
+    var i = +node.getAttribute('data-i');
+    candidates[i].pick = node.checked;
+  });
+  document.getElementById('tt-import-tasks').addEventListener('click', function () {
+    var n = 0;
+    candidates.forEach(function (c) {
+      if (!c.pick) return;
+      tasks.push({ id: uid(), text: c.text, due: c.due, done: false, src: '班群', ts: Date.now() });
+      n++;
+    });
+    persistTasks(); renderAll();
+    setMsg('tt-msg-msg', true, '✓ 已导入 ' + n + ' 条待办');
+  });
+
+  // ----- 示例
+  var SAMPLE_COURSE = [
+    '高等数学A 王建国 教学楼A301 1-16周 星期一 1-2节',
+    '大学英语 李老师 外语楼B202 1-16周 星期二 3-4节',
+    '线性代数 张老师 教学楼C105 2-15周 星期三 5-6节',
+    '程序设计基础 刘老师 信息楼D401 1-16周 星期四 7-8节',
+    '体育 陈老师 田径场 1-12周 星期五 3-4节'
+  ].join('\n');
+  document.getElementById('tt-paste-sample').addEventListener('click', function () {
+    document.getElementById('tt-paste').value = SAMPLE_COURSE;
+  });
+  var SAMPLE_MSG = [
+    '班长 2026-10-06 09:00',
+    '通知：本周五前把高数作业（第三章习题）提交到学习通，记得写上名字',
+    '学习委员 09:05',
+    '下周二要交英语作文，题目在群文件里，记得打印带来',
+    '张三',
+    '收到',
+    '李四',
+    '谢谢老师',
+    '团支书',
+    '这周日晚上7点开班会，穿校服，在教学楼A301集合',
+    '[图片]',
+    '课代表',
+    '提醒：下周一有线性代数小测验，范围是前两章，记得复习'
+  ].join('\n');
+  document.getElementById('tt-msg-sample').addEventListener('click', function () {
+    document.getElementById('tt-msgs').value = SAMPLE_MSG;
+  });
+
+  // ----- 初始渲染 + 定时刷新
+  renderAll();
+  setInterval(renderAll, 30000);
+})();
 </script>
 <script>
   // ============================================================
