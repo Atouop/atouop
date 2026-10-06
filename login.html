@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登录 · Atouop</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #06080f; --panel: rgba(16, 20, 32, 0.82);
+    --line: rgba(120, 160, 255, 0.18);
+    --text: #e8eefc; --mut: #8a97b4; --acc: #7ab0ff; --acc2: #4a7dff;
+  }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--text);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; position: relative;
+  }
+  #stars { position: fixed; inset: 0; z-index: 0; }
+  .glow {
+    position: fixed; z-index: 0; width: 60vmin; height: 60vmin; border-radius: 50%;
+    background: radial-gradient(circle, rgba(74, 125, 255, 0.18), transparent 65%);
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    filter: blur(10px);
+  }
+  .card {
+    position: relative; z-index: 1; width: min(380px, 88vw);
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 18px; padding: 38px 32px 30px;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  .brand { text-align: center; margin-bottom: 6px; }
+  .brand .logo {
+    font-size: 26px; font-weight: 700; letter-spacing: 3px;
+    background: linear-gradient(120deg, #fff, var(--acc));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .brand .sub { color: var(--mut); font-size: 12.5px; margin-top: 8px; letter-spacing: 1px; }
+  .field { margin-top: 20px; }
+  .field label { display: block; font-size: 12.5px; color: var(--mut); margin-bottom: 8px; letter-spacing: 1px; }
+  .field input {
+    width: 100%; height: 44px; padding: 0 14px;
+    background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+    border-radius: 10px; color: var(--text); font-size: 14.5px; outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .field input:focus { border-color: var(--acc); box-shadow: 0 0 0 3px rgba(122,176,255,0.12); }
+  .btn {
+    width: 100%; height: 46px; margin-top: 26px; border: none; cursor: pointer;
+    border-radius: 10px; font-size: 15px; font-weight: 600; letter-spacing: 2px; color: #06080f;
+    background: linear-gradient(120deg, #bcd6ff, var(--acc));
+    transition: transform .15s, filter .2s;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: .6; cursor: not-allowed; }
+  .msg { min-height: 18px; margin-top: 14px; font-size: 13px; text-align: center; color: #ff8a8a; }
+  .foot { text-align: center; margin-top: 18px; color: var(--mut); font-size: 11.5px; }
+  .foot a { color: var(--acc); text-decoration: none; }
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="glow"></div>
+<form class="card" id="loginForm" autocomplete="off">
+  <div class="brand">
+    <div class="logo">ATOUOP</div>
+    <div class="sub">登录以进入个人空间</div>
+  </div>
+  <div class="field">
+    <label>账号</label>
+    <input id="account" name="account" type="text" placeholder="输入账号名" autocomplete="username">
+  </div>
+  <div class="field">
+    <label>Token</label>
+    <input id="token" name="token" type="password" placeholder="输入访问 token" autocomplete="current-password">
+  </div>
+  <button class="btn" id="submitBtn" type="submit">登 录</button>
+  <div class="msg" id="msg"></div>
+  <div class="foot">由站长在控制台签发账号与 token</div>
+</form>
+
+<script>
+(function () {
+  // 背景星点
+  var cv = document.getElementById('stars'), cx = cv.getContext('2d');
+  var W, H, pts = [];
+  function resize() {
+    W = cv.width = window.innerWidth; H = cv.height = window.innerHeight;
+    pts = [];
+    var n = Math.floor(W * H / 9000);
+    for (var i = 0; i < n; i++) {
+      pts.push({ x: Math.random() * W, y: Math.random() * H,
+        r: Math.random() * 1.4 + 0.3, s: Math.random() * 0.5 + 0.1,
+        a: Math.random() * 0.6 + 0.2 });
+    }
+  }
+  function draw() {
+    cx.clearRect(0, 0, W, H);
+    for (var i = 0; i < pts.length; i++) {
+      var p = pts[i];
+      p.a += p.s * 0.02; if (p.a > 0.9 || p.a < 0.15) p.s *= -1;
+      cx.beginPath();
+      cx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      cx.fillStyle = 'rgba(160,190,255,' + p.a.toFixed(2) + ')';
+      cx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize', resize);
+  resize(); draw();
+
+  // 若已登录，直接跳转
+  fetch('/api/auth', { credentials: 'same-origin' })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d.authenticated) go();
+    })
+    .catch(function () {});
+
+  function go() {
+    var u = new URL(location.href);
+    var next = u.searchParams.get('next') || '/';
+    location.replace(next);
+  }
+
+  var form = document.getElementById('loginForm');
+  var msg = document.getElementById('msg');
+  var btn = document.getElementById('submitBtn');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var account = document.getElementById('account').value.trim();
+    var token = document.getElementById('token').value;
+    msg.textContent = '';
+    if (!account || !token) { msg.textContent = '请输入账号和 token'; return; }
+    btn.disabled = true; btn.textContent = '登录中…';
+    fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ account: account, token: token })
+    })
+      .then(function (r) {
+        return r.json().then(function (d) { return { ok: r.ok, d: d }; });
+      })
+      .then(function (res) {
+        if (res.ok) { go(); }
+        else {
+          msg.textContent = res.d.error || '登录失败';
+          btn.disabled = false; btn.textContent = '登 录';
+        }
+      })
+      .catch(function () {
+        msg.textContent = '网络错误，请重试';
+        btn.disabled = false; btn.textContent = '登 录';
+      });
+  });
+})();
+</script>
+</body>
+</html>

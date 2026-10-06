@@ -1,0 +1,13 @@
+# 依赖
+node_modules/
+
+# 本地构建产物
+.wrangler/
+
+# 未加密母版与备份（避免随部署公开）
+console.master
+console.backup.bak
+index.backup.html
+
+# 本地工具脚本（build_control.js 含明文密码，绝不部署）
+tools/

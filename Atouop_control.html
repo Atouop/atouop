@@ -393,5 +393,256 @@
 })();
 
 </script>
+<!-- ===== Atouop 账号管理组件（由安装脚本注入，自包含） ===== -->
+<style>
+  #acx-fab {
+    position: fixed; right: 20px; bottom: 20px; z-index: 99998;
+    background: linear-gradient(120deg, #4a7dff, #7ab0ff); color: #fff;
+    border: none; border-radius: 999px; padding: 11px 20px; cursor: pointer;
+    font-size: 14px; font-weight: 600; letter-spacing: 1px;
+    box-shadow: 0 8px 24px rgba(74,125,255,.4);
+  }
+  #acx-fab:hover { filter: brightness(1.08); }
+  #acx-mask {
+    position: fixed; inset: 0; z-index: 99999; display: none;
+    background: rgba(4,7,14,.72); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  #acx-mask.open { display: flex; }
+  #acx-box {
+    width: min(720px, 100%); max-height: 88vh; overflow: auto;
+    background: #0d1220; border: 1px solid rgba(122,176,255,.2); border-radius: 16px;
+    color: #e8eefc; font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    box-shadow: 0 24px 70px rgba(0,0,0,.6);
+  }
+  #acx-box .acx-h {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 22px; border-bottom: 1px solid rgba(122,176,255,.14);
+  }
+  #acx-box .acx-h b { font-size: 16px; letter-spacing: 1px; }
+  #acx-box .acx-x { background: none; border: none; color: #8a97b4; font-size: 22px; cursor: pointer; }
+  #acx-box .acx-b { padding: 18px 22px; }
+  .acx-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .acx-input {
+    background: rgba(255,255,255,.04); border: 1px solid rgba(122,176,255,.18);
+    border-radius: 8px; color: #e8eefc; padding: 9px 12px; font-size: 13.5px; outline: none;
+  }
+  .acx-input:focus { border-color: #7ab0ff; }
+  .acx-btn {
+    border: none; border-radius: 8px; padding: 9px 16px; cursor: pointer;
+    font-size: 13px; font-weight: 600; color: #06080f;
+    background: linear-gradient(120deg, #bcd6ff, #7ab0ff);
+  }
+  .acx-btn.ghost { background: rgba(255,255,255,.08); color: #e8eefc; }
+  .acx-btn.danger { background: #e5484d; color: #fff; }
+  .acx-btn:hover { filter: brightness(1.08); }
+  .acx-list { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .acx-card {
+    border: 1px solid rgba(122,176,255,.14); border-radius: 12px; padding: 13px 15px;
+    background: rgba(255,255,255,.025);
+  }
+  .acx-card .nm { font-size: 14.5px; font-weight: 600; }
+  .acx-tag {
+    display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px;
+    margin-left: 8px; vertical-align: middle;
+  }
+  .acx-tag.owner { background: rgba(255,190,90,.18); color: #ffc97a; }
+  .acx-tag.member { background: rgba(122,176,255,.16); color: #9ec1ff; }
+  .acx-tag.on { background: rgba(80,220,140,.16); color: #6ee7a8; }
+  .acx-tag.off { background: rgba(255,255,255,.07); color: #9aa6c0; }
+  .acx-meta { color: #8a97b4; font-size: 12px; margin-top: 6px; }
+  .acx-ops { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .acx-cred {
+    margin-top: 14px; border: 1px dashed rgba(255,190,90,.4); border-radius: 12px;
+    padding: 14px; background: rgba(255,190,90,.06);
+  }
+  .acx-cred .k { font-size: 12px; color: #ffc97a; margin-top: 8px; }
+  .acx-cred .v {
+    margin-top: 4px; display: flex; gap: 8px; align-items: center;
+    background: rgba(0,0,0,.3); border-radius: 8px; padding: 8px 10px;
+    font-family: ui-monospace, Consolas, monospace; font-size: 12.5px; word-break: break-all;
+  }
+  .acx-msg { min-height: 18px; font-size: 12.5px; margin-top: 10px; color: #ff8a8a; }
+  .acx-hint { color: #8a97b4; font-size: 12px; margin-top: 12px; line-height: 1.6; }
+</style>
+<button id="acx-fab" type="button">账号管理</button>
+<div id="acx-mask">
+  <div id="acx-box">
+    <div class="acx-h"><b>账号管理</b><button class="acx-x" id="acx-close" type="button">&times;</button></div>
+    <div class="acx-b">
+      <div class="acx-row">
+        <input class="acx-input" id="acx-pw" type="password" placeholder="控制台密码" style="flex:1;min-width:160px;">
+        <button class="acx-btn" id="acx-unlock" type="button">解锁</button>
+      </div>
+
+      <div class="acx-cred" id="acx-newcred" style="display:none;">
+        <div style="font-size:13px;font-weight:600;color:#ffc97a;">账号已创建，请立即保存（关闭后不再显示）</div>
+        <div class="k">登录 Token（登录用）</div>
+        <div class="v"><span id="acx-vtoken" style="flex:1;"></span><button class="acx-btn ghost" data-copy="acx-vtoken" type="button">复制</button></div>
+        <div class="k">桥接密钥 Bridge（bridge.py 用）</div>
+        <div class="v"><span id="acx-vbridge" style="flex:1;"></span><button class="acx-btn ghost" data-copy="acx-vbridge" type="button">复制</button></div>
+      </div>
+
+      <div class="acx-row" style="margin-top:16px;">
+        <input class="acx-input" id="acx-name" type="text" placeholder="新账号名" style="flex:1;min-width:140px;">
+        <input class="acx-input" id="acx-token" type="text" placeholder="自定义 token（留空随机）" style="flex:1;min-width:150px;">
+        <button class="acx-btn" id="acx-create" type="button">创建账号</button>
+      </div>
+
+      <div class="acx-list" id="acx-list"></div>
+      <div class="acx-msg" id="acx-msg"></div>
+      <div class="acx-hint">
+        每个账号独立看待办/课表，互不干扰。第一个账号为站长（owner）。登录走登录页，桥接各自运行（用各自的桥接密钥）。
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  var pw = '';
+  var mask = document.getElementById('acx-mask');
+  var msg = document.getElementById('acx-msg');
+  document.getElementById('acx-fab').addEventListener('click', function () {
+    mask.classList.add('open');
+  });
+  document.getElementById('acx-close').addEventListener('click', function () {
+    mask.classList.remove('open');
+  });
+  function setMsg(t, color) {
+    msg.textContent = t || '';
+    msg.style.color = color || '#ff8a8a';
+  }
+  function copyText(t) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(t).catch(function () {});
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = t; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+  }
+  document.querySelectorAll('[data-copy]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      copyText(document.getElementById(b.getAttribute('data-copy')).textContent);
+    });
+  });
+
+  function api(path, body) {
+    var url = '/api/accounts?pw=' + encodeURIComponent(pw);
+    var opt = { credentials: 'same-origin' };
+    if (body) {
+      opt.method = 'POST';
+      opt.headers = { 'Content-Type': 'application/json' };
+      opt.body = JSON.stringify(body);
+    }
+    return fetch(url, opt).then(function (r) {
+      return r.json().then(function (d) { return { ok: r.ok, d: d }; });
+    });
+  }
+
+  function fmtTime(t) {
+    if (!t) return '从未';
+    try { return new Date(t).toLocaleString('zh-CN', { hour12: false }); }
+    catch (e) { return String(t); }
+  }
+
+  function render(accounts) {
+    var box = document.getElementById('acx-list');
+    box.innerHTML = '';
+    accounts.forEach(function (a) {
+      var card = document.createElement('div');
+      card.className = 'acx-card';
+      card.innerHTML =
+        '<div class="nm">' + escapeHtml(a.name) +
+        '<span class="acx-tag ' + (a.role === 'owner' ? 'owner' : 'member') + '">' +
+        (a.role === 'owner' ? '站长' : '成员') + '</span>' +
+        '<span class="acx-tag ' + (a.online ? 'on' : 'off') + '">' +
+        (a.online ? '在线' : '离线') + '</span></div>' +
+        '<div class="acx-meta">待办 ' + a.tasks + ' · 事件 ' + a.events + ' · 课程 ' + a.courses +
+        ' · 创建 ' + fmtTime(a.created) + ' · 最近 ' + fmtTime(a.lastSeen) + '</div>';
+      var ops = document.createElement('div');
+      ops.className = 'acx-ops';
+      ops.appendChild(btn('重置 Token', 'ghost', function () {
+        if (!confirm('重置该账号的登录 Token？')) return;
+        api('', { action: 'reset', name: a.name, kind: 'token' }).then(function (res) {
+          if (res.ok) {
+            showCred(res.d.token, null);
+            load();
+          } else setMsg(res.d.error);
+        });
+      }));
+      ops.appendChild(btn('重置桥接密钥', 'ghost', function () {
+        if (!confirm('重置该账号的桥接密钥？重置后旧 bridge 立即失效')) return;
+        api('', { action: 'reset', name: a.name, kind: 'bridge' }).then(function (res) {
+          if (res.ok) {
+            showCred(null, res.d.bridge);
+            load();
+          } else setMsg(res.d.error);
+        });
+      }));
+      ops.appendChild(btn('删除账号', 'danger', function () {
+        if (!confirm('确定删除账号「' + a.name + '」？其数据将一并删除')) return;
+        api('', { action: 'delete', name: a.name }).then(function (res) {
+          if (res.ok) { setMsg('已删除', '#6ee7a8'); load(); }
+          else setMsg(res.d.error);
+        });
+      }));
+      card.appendChild(ops);
+      box.appendChild(card);
+    });
+  }
+  function btn(label, cls, fn) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'acx-btn ' + (cls || ''); b.textContent = label;
+    b.addEventListener('click', fn);
+    return b;
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function showCred(token, bridge) {
+    var c = document.getElementById('acx-newcred');
+    c.style.display = 'block';
+    if (token) document.getElementById('acx-vtoken').textContent = token;
+    if (bridge) document.getElementById('acx-vbridge').textContent = bridge;
+    if (token) document.getElementById('acx-vtoken').parentElement.style.display = '';
+    else document.getElementById('acx-vtoken').parentElement.style.display = 'none';
+    if (bridge) document.getElementById('acx-vbridge').parentElement.style.display = '';
+    else document.getElementById('acx-vbridge').parentElement.style.display = 'none';
+  }
+  function load() {
+    api().then(function (res) {
+      if (res.ok) { render(res.d.accounts || []); setMsg(''); }
+      else setMsg('密码错误或未授权');
+    }).catch(function () { setMsg('网络错误'); });
+  }
+  document.getElementById('acx-unlock').addEventListener('click', function () {
+    pw = document.getElementById('acx-pw').value;
+    load();
+  });
+  document.getElementById('acx-pw').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { pw = e.target.value; load(); }
+  });
+  document.getElementById('acx-create').addEventListener('click', function () {
+    var name = document.getElementById('acx-name').value.trim();
+    var token = document.getElementById('acx-token').value.trim();
+    if (!name) { setMsg('请填写账号名'); return; }
+    api('', { action: 'create', name: name, token: token }).then(function (res) {
+      if (res.ok) {
+        showCred(res.d.token, res.d.bridge);
+        document.getElementById('acx-name').value = '';
+        document.getElementById('acx-token').value = '';
+        setMsg('已创建：' + res.d.name + '（' + (res.d.role === 'owner' ? '站长' : '成员') + '）', '#6ee7a8');
+        load();
+      } else setMsg(res.d.error);
+    });
+  });
+})();
+</script>
+<!-- ===== /账号管理组件 ===== -->
+
 </body>
 </html>
