@@ -5018,7 +5018,56 @@
       Object.keys(o).forEach(function (k) { walk(o[k], ctx); });
     }
     walk(data, {});
+    if (!count) count = importScheduleText(data);
     if (!count) LAST_DIAG = '顶层字段：' + topKeys + '；共扫描 ' + objCount + ' 个对象，没有找到同时含“星期”和“开始节次”的课程项';
+    return count;
+  }
+
+  // ----- 教务系统「scheduleText」文本格式（如：4~19周 周一 第九节~第十节 莲华校区 主712 冯晶）
+  var CN_SEC = { '一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10,'十一':11,'十二':12,'十三':13,'十四':14 };
+  function secNum(t) { return /^\d+$/.test(t) ? parseInt(t, 10) : (CN_SEC[t] || 0); }
+  function splitSegs(t) { return String(t || '').split(/\s*;\s*\n?|\n/).map(function (x) { return x.trim(); }).filter(Boolean); }
+  var SEG_RE = /^([\d~,\-()（）单双]+)周\s*周([一二三四五六日天])\s*第([\d一二三四五六七八九十]+)节(?:\s*[~-]\s*第([\d一二三四五六七八九十]+)节)?\s*(.*)$/;
+  function importScheduleText(root) {
+    var lessons = root && (root.lessons || (root.data && root.data.lessons));
+    if (!Array.isArray(lessons)) return 0;
+    var count = 0;
+    lessons.forEach(function (l) {
+      var st = l && l.scheduleText;
+      if (!st) return;
+      function tx(o) { return o ? (o.textZh || o.text || '') : ''; }
+      var person = splitSegs(tx(st.dateTimePlacePersonText));
+      var place = splitSegs(tx(st.dateTimePlaceText));
+      var time = splitSegs(tx(st.dateTimeText));
+      var segs = person.length ? person : (place.length ? place : time);
+      var name = (l.course && (l.course.nameZh || l.course.name)) || l.nameZh || l.name || '';
+      segs.forEach(function (seg, idx) {
+        var m = seg.match(SEG_RE);
+        if (!m) return;
+        var wd = CN_NUM[m[2]], st1 = secNum(m[3]), en1 = m[4] ? secNum(m[4]) : st1;
+        if (!wd || !st1) return;
+        var pm = (place[idx] || '').match(SEG_RE);
+        var placeRest = pm ? pm[5].trim() : '';
+        var teacher = m[5].trim();
+        if (placeRest && teacher.indexOf(placeRest) === 0) teacher = teacher.slice(placeRest.length).trim();
+        else if (placeRest) teacher = '';
+        var room = placeRest.replace(/\S*校区\s*/, '').trim();
+        var wk = m[1], wtype = /单/.test(wk) ? 'odd' : (/双/.test(wk) ? 'even' : 'all');
+        wk.replace(/[()（）单双]/g, '').split(',').forEach(function (r) {
+          var n = r.match(/\d+/g);
+          if (!n) return;
+          var a = +n[0], b = n.length > 1 ? +n[1] : a;
+          sched.courses.push({ id: uid(), name: String(name), teacher: teacher, room: room, weekday: wd,
+            start: st1, end: en1 || st1, weekStart: a, weekEnd: b, weekType: wtype });
+          count++;
+        });
+      });
+    });
+    var sem = lessons[0] && lessons[0].semester;
+    if (count && sem && sem.startDate && !sched.semesterStart) {
+      sched.semesterStart = sem.startDate;
+      try { document.getElementById('tt-sem-start').value = sem.startDate; } catch (e) {}
+    }
     return count;
   }
 
