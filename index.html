@@ -2467,6 +2467,8 @@
           <div class="tt-import-btns">
             <button class="btn btn-ghost btn-sm" id="tt-copy-helper" type="button">复制提取助手代码</button>
             <button class="btn btn-ghost btn-sm" id="tt-open-jw" type="button">打开教务系统</button>
+            <button class="btn btn-ghost btn-sm" id="tt-import-file" type="button">导入 JSON 文件</button>
+            <input type="file" id="tt-file" accept=".json,application/json,.txt" style="display:none">
           </div>
           <textarea class="input" id="tt-paste" placeholder="粘贴提取助手输出的 JSON，或直接粘贴课表文字（如：高等数学 张三 A301 1-16周 星期一 1-2节）"></textarea>
           <div class="tool-row" style="margin-top:12px">
@@ -5066,6 +5068,20 @@
     sched.courses = []; persistSched(); renderGrid(); renderAll();
     setMsg('tt-course-msg', true, '已清空课程表');
   });
+  document.getElementById('tt-import-file').addEventListener('click', function () {
+    document.getElementById('tt-file').click();
+  });
+  document.getElementById('tt-file').addEventListener('change', function (e) {
+    var f = e.target.files && e.target.files[0];
+    if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function () {
+      document.getElementById('tt-paste').value = rd.result;
+      document.getElementById('tt-parse').click();
+    };
+    rd.readAsText(f, 'utf-8');
+    e.target.value = '';
+  });
   document.getElementById('tt-open-jw').addEventListener('click', function () {
     window.open('https://jwctsp.kust.edu.cn/integration/for-std/course-table', '_blank');
   });
@@ -5081,9 +5097,11 @@
     'if(!raw){for(var i=0;i<cand.length;i++){try{var r=await fetch(cand[i],{credentials:"include"});var j=await r.json();if(j){raw=j;break;}}catch(e){}}}',
     'if(!raw){alert("没有找到课表数据：请确认课表已显示（可切换周次）后重试");return;}',
     'var out=JSON.stringify(raw);',
-    'try{await navigator.clipboard.writeText(out);}catch(e){}',
+    'var copied=false;',
+    'try{if(typeof copy===\"function\"){copy(out);copied=true;}}catch(e){}',
+    'if(!copied){try{await navigator.clipboard.writeText(out);copied=true;}catch(e){}}',
     'var b=new Blob([out],{type:"application/json"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="kust-course-raw.json";a.click();',
-    'alert("课表数据已提取（"+out.length+" 字符），已复制并下载，回到 Atouop 粘贴导入。");',
+    'alert("课表数据已提取（"+out.length+" 字符）。"+(copied?"已复制到剪贴板，":"自动复制失败，")+"并已下载 kust-course-raw.json；回到 Atouop 粘贴，或点“导入 JSON 文件”选择该文件。");',
     '})();'
   ].join('\n');
   document.getElementById('tt-copy-helper').addEventListener('click', function () {
