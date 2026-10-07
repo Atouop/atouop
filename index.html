@@ -5074,7 +5074,7 @@
   var HELPER = [
     '(async function(){',
     'var urls=performance.getEntriesByType("resource").map(function(e){return e.name;});',
-    'var cand=Array.from(new Set(urls.filter(function(u){return /course|table|lesson|schedule|kb|课表/i.test(u)&&!/\\.(js|css|png|jpg|svg|woff2?|ico|map)(\\?|$)/i.test(u);}));',
+    'var cand=Array.from(new Set(urls.filter(function(u){return /course|table|lesson|schedule|kb|课表/i.test(u)&&!/\\.(js|css|png|jpg|svg|woff2?|ico|map)(\\?|$)/i.test(u);})));',
     'var raw=null;',
     'for(var i=0;i<cand.length;i++){try{var r=await fetch(cand[i],{credentials:"include"});var t=await r.text();var j;try{j=JSON.parse(t);}catch(e){continue;}',
     'if(/courseName|course_name|kcmic|kcmc|课程名|lesson/i.test(t)){raw=j;break;}}catch(e){}}',
