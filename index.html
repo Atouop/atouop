@@ -4930,7 +4930,7 @@
     if (!v) return '';
     if (typeof v === 'string') return v;
     if (Array.isArray(v)) return v.map(function (x) { return nameOf(x); }).filter(Boolean).join(',');
-    if (typeof v === 'object') return v.name || v.teacherName || v.roomName || v.text || v.courseName || '';
+    if (typeof v === 'object') return v.nameZh || v.name || v.teacherName || v.roomName || v.text || v.courseName || v.nameCn || v.code || '';
     return '';
   }
   function num(v) { var n = parseInt(v, 10); return isNaN(n) ? 0 : n; }
@@ -4939,13 +4939,13 @@
       for (var i = 0; i < arguments.length; i++) { var v = x[arguments[i]]; if (v !== undefined && v !== null && v !== '') return v; }
       return '';
     }
-    var weekday = num(get('weekday','dayOfWeek','day','weekDay'));
+    var weekday = num(get('weekday','dayOfWeek','day','weekDay','xqj','xq'));
     var start = num(get('startUnit','startSection','startPeriod','start','beginUnit','sectionStart','beginSection'));
     var end = num(get('endUnit','endSection','endPeriod','end','sectionEnd','endUnitNo'));
     if (!end) end = start;
-    var name = get('courseName','course_name','name','course','kcmc','courseNameZh');
+    var name = nameOf(get('courseName','course_name','courseNameZh','kcmc','lessonName','course','nameZh','name'));
     var teacher = nameOf(get('teacherName','teacher','teachers','teacherNameZh','skjs'));
-    var room = nameOf(get('room','roomName','rooms','classroom','jxl','jsmc','roomNameZh'));
+    var room = nameOf(get('room','roomName','rooms','classroom','jxl','jsmc','roomNameZh','place','location','campusRoom'));
     var weekStart = 0, weekEnd = 0, weekType = 'all';
     var weekJson = get('weekJson','weekState','weekDescription','weekStateString','zcbf');
     if (typeof weekJson === 'string' && /^[01]+$/.test(weekJson)) {
@@ -4957,10 +4957,20 @@
         else if (ones.length > 1 && ones.every(function(n){return n%2===0;})) weekType = 'even';
       }
     } else {
-      var weeks = get('weeks','weekList');
+      var weeks = get('weekIndexes','weeks','weekList');
+      var wstr = get('weeksStr','weekStr','weekText','zcmc');
+      if (!(Array.isArray(weeks) && weeks.length) && typeof wstr === 'string') {
+        var wn = (wstr.match(/\d+/g) || []).map(Number);
+        if (wn.length) { weekStart = Math.min.apply(null, wn); weekEnd = Math.max.apply(null, wn); }
+        if (/单/.test(wstr)) weekType = 'odd'; else if (/双/.test(wstr)) weekType = 'even';
+      }
       if (Array.isArray(weeks) && weeks.length) {
         var nums = weeks.map(Number).filter(function (n) { return !isNaN(n); });
-        if (nums.length) { weekStart = Math.min.apply(null, nums); weekEnd = Math.max.apply(null, nums); }
+        if (nums.length) {
+          weekStart = Math.min.apply(null, nums); weekEnd = Math.max.apply(null, nums);
+          if (nums.length > 1 && nums.every(function(n){return n%2===1;})) weekType = 'odd';
+          else if (nums.length > 1 && nums.every(function(n){return n%2===0;})) weekType = 'even';
+        }
       }
       if (!weekStart) {
         weekStart = num(get('beginWeek','startWeek','weekStart','weekBegin'));
@@ -4975,34 +4985,40 @@
     return { id: uid(), name: String(name), teacher: String(teacher), room: String(room),
       weekday: weekday, start: start, end: end, weekStart: weekStart, weekEnd: weekEnd, weekType: weekType };
   }
-  function deepFindLessons(root) {
-    var found = [];
-    function walk(o) {
-      if (Array.isArray(o)) {
-        var looks = o.length && o.every(function (x) {
-          return x && typeof x === 'object' && (x.courseName || x.course_name || x.name || x.course || x.kcmc);
-        });
-        if (looks) found.push(o);
-        o.forEach(walk);
-      } else if (o && typeof o === 'object') {
-        Object.keys(o).forEach(function (k) { walk(o[k]); });
-      }
-    }
-    walk(root);
-    found.sort(function (a, b) { return b.length - a.length; });
-    return found;
-  }
+  var NAME_KEYS = ['courseName','course_name','courseNameZh','kcmc','lessonName','course','nameZh','name'];
+  function hasKey(o, keys) { for (var i = 0; i < keys.length; i++) { var v = o[keys[i]]; if (v !== undefined && v !== null && v !== '') return true; } return false; }
+  var DAY_KEYS = ['weekday','dayOfWeek','day','weekDay','xqj','xq'];
+  var START_KEYS = ['startUnit','startSection','startPeriod','start','beginUnit','sectionStart','beginSection'];
+  var LAST_DIAG = '';
   function importJSON(text) {
     var data;
-    try { data = JSON.parse(text); } catch (e) { return 0; }
-    var arrays = deepFindLessons(data);
-    var count = 0;
-    arrays.forEach(function (arr) {
-      arr.forEach(function (x) {
-        var c = mapLesson(x);
-        if (c) { sched.courses.push(c); count++; }
-      });
-    });
+    try { data = JSON.parse(text); } catch (e) { LAST_DIAG = 'JSON 本身解析失败：' + e.message; return 0; }
+    var seen = {}, count = 0, objCount = 0;
+    var topKeys = (data && typeof data === 'object') ? Object.keys(data).slice(0, 8).join(',') : typeof data;
+    function walk(o, inh) {
+      if (Array.isArray(o)) { o.forEach(function (x) { walk(x, inh); }); return; }
+      if (!o || typeof o !== 'object') return;
+      objCount++;
+      var ctx = { name: inh.name, teacher: inh.teacher, room: inh.room };
+      if (hasKey(o, NAME_KEYS)) ctx.name = o;
+      if (o.teachers || o.teacherName || o.teacher) ctx.teacher = o;
+      if (o.room || o.roomName || o.rooms) ctx.room = o;
+      if (hasKey(o, DAY_KEYS) && hasKey(o, START_KEYS)) {
+        var merged = {};
+        [inh.room, inh.teacher, inh.name, o].forEach(function (src) {
+          if (src && src !== o) { for (var k in src) if (typeof src[k] !== 'object' || src[k] === null || NAME_KEYS.indexOf(k) >= 0 || k === 'teachers' || k === 'room' || k === 'rooms') { if (merged[k] === undefined) merged[k] = src[k]; } }
+        });
+        for (var k in o) merged[k] = o[k];
+        var c = mapLesson(merged);
+        if (c) {
+          var key = [c.name, c.weekday, c.start, c.end, c.weekStart, c.weekEnd, c.weekType, c.room].join('|');
+          if (!seen[key]) { seen[key] = 1; sched.courses.push(c); count++; }
+        }
+      }
+      Object.keys(o).forEach(function (k) { walk(o[k], ctx); });
+    }
+    walk(data, {});
+    if (!count) LAST_DIAG = '顶层字段：' + topKeys + '；共扫描 ' + objCount + ' 个对象，没有找到同时含“星期”和“开始节次”的课程项';
     return count;
   }
 
@@ -5056,13 +5072,14 @@
     var text = document.getElementById('tt-paste').value.trim();
     if (!text) { setMsg('tt-course-msg', false, '请先粘贴内容'); return; }
     var n = 0;
+    LAST_DIAG = '';
     if (text[0] === '{' || text[0] === '[') {
-      try { n = importJSON(text); } catch (e) { n = 0; }
+      try { n = importJSON(text); } catch (e) { n = 0; LAST_DIAG = String(e); }
       if (!n) n = importText(text);
     } else { n = importText(text); }
     persistSched(); renderGrid(); renderAll();
     if (n) setMsg('tt-course-msg', true, '✓ 成功导入 ' + n + ' 门课程');
-    else setMsg('tt-course-msg', false, '没有解析出课程，请检查格式或用提取助手');
+    else setMsg('tt-course-msg', false, '没有解析出课程。' + (LAST_DIAG ? '（' + LAST_DIAG + '）' : '请检查格式或用提取助手'));
   });
   document.getElementById('tt-clear-course').addEventListener('click', function () {
     sched.courses = []; persistSched(); renderGrid(); renderAll();
@@ -5093,7 +5110,7 @@
     'var cand=Array.from(new Set(urls.filter(function(u){return /course|table|lesson|schedule|kb|课表/i.test(u)&&!/\\.(js|css|png|jpg|svg|woff2?|ico|map)(\\?|$)/i.test(u);})));',
     'var raw=null;',
     'for(var i=0;i<cand.length;i++){try{var r=await fetch(cand[i],{credentials:"include"});var t=await r.text();var j;try{j=JSON.parse(t);}catch(e){continue;}',
-    'if(/courseName|course_name|kcmic|kcmc|课程名|lesson/i.test(t)){raw=j;break;}}catch(e){}}',
+    'if(/weekday|dayOfWeek|startUnit|startSection|xqj/i.test(t)&&/courseName|course_name|kcmc|nameZh|lessonName/i.test(t)){raw=j;break;}}catch(e){}}',
     'if(!raw){for(var i=0;i<cand.length;i++){try{var r=await fetch(cand[i],{credentials:"include"});var j=await r.json();if(j){raw=j;break;}}catch(e){}}}',
     'if(!raw){alert("没有找到课表数据：请确认课表已显示（可切换周次）后重试");return;}',
     'var out=JSON.stringify(raw);',
